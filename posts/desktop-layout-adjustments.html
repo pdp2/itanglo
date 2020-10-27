@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="../main.css">
+	<title>itanglo | Exploring the craft of web development</title>
+</head>
+<body>
+	<h2>Desktop layout adjustments</h2>
+	<p>Posted by Paolo on 5th October 2020</p>
+	<p>So far I've been building this website using a mobile first approach. Previously on desktop, the text stretched across the entire width of the viewport. Long lines like this don't make for very comfortable reading and I don't want to be responsible for any neck aches. I can take care of this with a few lines of CSS by ensuring that the content doesn't stretch any wider than a given amount and that when the viewport is wide enough, the content is in the centre of the page. Below is the CSS that will give me the desired effect (the parts in bold are the ones that have changed):</p>
+<pre><code>body {
+    font-family: sans-serif;
+    <strong>margin: 8px;
+    max-width: 600px;</strong>
+}</code></pre>
+	<p>I made a couple of changes to the ruleset which affects the body element. I added a margin of 8px all around and then I set the max-width property to 600px. The max-width property will mean that no matter how wide the viewport gets, the content will only ever occupy 600px. This should mean that the line length is closer to the recommended 40-75 characters (probably just a little over). Now what remains to be done is to centre the content when the viewport gets to a certain width. To do this I need to add a bit more CSS and include a media query as shown below:</p>
+<pre><code>@media only screen and (min-width: 616px) {
+    body {
+        margin: 8px auto;
+    }
+}</code></pre>
+	<p>The styles within the media query will only be applied if the media type is screen and the min-width is 616px. In some older browsers this syntax will not work as expected and the styles will be applied even if the conditions aren't met. To prevent this I added the only keyword which modern browsers will ignore, but in older browsers it will stop the styles within the media query being applied. The CSS ruleset within the media query changes the margin property so that there are 8px on the top and bottom and the value of auto is set to the right and left. When you set the lateral margins to auto and set either a width or a max-width on an element it will center it when the viewport size is large enough. The reason I'm including this style within a media query is because I want to make sure that when the viewport is smaller, there is still a margin between the content and the edge of the viewport.</p>
+</body>
+</html>

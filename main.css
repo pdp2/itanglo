@@ -1,0 +1,15 @@
+body {
+	font-family: sans-serif;
+	margin: 8px;
+	max-width: 600px;
+}
+
+p {
+	line-height: 1.5;
+}
+
+@media only screen and (min-width: 616px) {
+	body {
+		margin: 8px auto;
+	}
+}
