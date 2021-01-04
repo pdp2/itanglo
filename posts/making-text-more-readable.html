@@ -7,19 +7,23 @@
 	<title>itanglo | Exploring the craft of web development</title>
 </head>
 <body>
-	<h2>Making text more readable</h2>
-	<p>Posted by Paolo on 5th October 2020</p>
-	<p>As the first little enhancement to this blog, I wanted to make the text a little more readable. The default web font for most web browsers seems to be a serif font. I'm not sure why that is, because generally the consensus is that sans-serif fonts are easier to read on screens. I'm going to get round to choosing a font later on, but for now I'm going to use whatever the default sans-serif font is on the system the user is browsing on. I'm using MacOS so the rendered font will be Helvetica, I think for Microsoft it is Arial.</p>
-	<p>To do this first I need to link a stylesheet. I created a new file called main.css in the root of my project. Then I included it in each HTML file where I wanted to use the styles. To include the stylesheet I used a link tag and set the relevant attributes as shown below:</p>
-	<p><code>&lt;link rel="stylesheet" href="../main.css"&gt;</code></p>
-	<p>Within the CSS file I added two rulesets. I needed a bit of a refresher on CSS terminology and I found <a href="https://css-tricks.com/css-ruleset-terminology/">this post on CSS tricks</a> which as usual explains it really well. Below is the CSS I added:</p>
+	<h1><a href="../index.html">itanglo</a></h1>
+	<p>Exploring the craft of web development</p>
+
+<h2>Making text more readable</h2>
+<p>Posted by Paolo on 5th October 2020</p>
+<p>As the first little enhancement to this blog, I wanted to make the text a little more readable. The default web font for most web browsers seems to be a serif font. I'm not sure why that is, because generally the consensus is that sans-serif fonts are easier to read on screens. I'm going to get round to choosing a font later on, but for now I'm going to use whatever the default sans-serif font is on the system the user is browsing on. I'm using MacOS so the rendered font will be Helvetica, I think for Microsoft it is Arial.</p>
+<p>To do this first I need to link a stylesheet. I created a new file called main.css in the root of my project. Then I included it in each HTML file where I wanted to use the styles. To include the stylesheet I used a link tag and set the relevant attributes as shown below:</p>
+<p><code>&lt;link rel="stylesheet" href="../main.css"&gt;</code></p>
+<p>Within the CSS file I added two rulesets. I needed a bit of a refresher on CSS terminology and I found <a href="https://css-tricks.com/css-ruleset-terminology/">this post on CSS tricks</a> which as usual explains it really well. Below is the CSS I added:</p>
 <p><pre><code>body {
-    font-family: sans-serif;
+font-family: sans-serif;
 }
 
 p {
-    line-height: 1.5;
+line-height: 1.5;
 }</code></pre></p>
-	<p>The first ruleset sets the font of the body element to sans-serif and the second increases the line height for each p element so there is more space between each line. That should make it easier to follow the text from one line to the next.</p>
+<p>The first ruleset sets the font of the body element to sans-serif and the second increases the line height for each p element so there is more space between each line. That should make it easier to follow the text from one line to the next.</p>
+
 </body>
 </html>
