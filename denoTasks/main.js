@@ -20,16 +20,65 @@ for await (const dirEntry of Deno.readDir(postContentDir)) {
 
 Deno.writeTextFile('./posts.json', JSON.stringify(posts));
 
-// Render views
-for await (const dirEntry of Deno.readDir(viewsDir)) {
-	console.log(dirEntry.name);
+// Declare views
+const views = [{
+	name: 'index',
+	srcPath: viewsDir + 'index.template.html',
+	finalPath: './index.html'
+}, {
+	name: 'post',
+	srcPath: viewsDir + 'post.template.html',
+	finalPath: './posts/',
+	repeatForData: posts.map(post => {
+		return {post}
+	})
+}];
 
-	const viewFiledata = await Deno.readFile(viewsDir + dirEntry.name);
+// Render views
+views.forEach(async view => {
+	const viewFiledata = await Deno.readFile(view.srcPath);
 	const viewFileContent = decoder.decode(viewFiledata);
 	const components = await getComponents(viewFileContent);
+	
+	if (view.repeatForData) {
+		console.log('View: \n\n', view);
 
-	console.log(components);
-}
+		view.repeatForData.forEach(dataItem => {
+			let finalHtml = viewFileContent;
+
+			components.forEach(component => {
+				console.log('Component: \n\n', component);
+				let componentContent = component.content;
+
+				if (component.dataAttributes.length) {
+					component.dataAttributes.forEach(attr => {
+						if (dataItem[attr.value]) {
+							const interpolationRegExp = /{{(.+)}}/g;
+							const interpolationMatches = [...componentContent.matchAll(interpolationRegExp)]
+							
+							interpolationMatches.forEach(interpolationMatch => {
+								const interpolationInstance = {
+									stringToReplace: interpolationMatch[0],
+									value: interpolationMatch[1]
+								};
+
+								const valueToInterpolate = interpolationInstance.value.split('.').reduce((acc, currentVal) => {
+									return acc[currentVal];
+								}, dataItem);
+
+								componentContent = componentContent.replace(interpolationInstance.stringToReplace, valueToInterpolate);
+							});
+						}
+					});
+				}
+
+				finalHtml = finalHtml.replace(component.stringToReplace, componentContent);
+			});
+
+			console.log('Final HTML: \n\n', finalHtml);
+		});
+	}
+});
 
 async function getComponents(fileContent) {
 	return new Promise(resolve => {
