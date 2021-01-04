@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="../main.css">
-	<title>itanglo | Exploring the craft of web development</title>
-</head>
-<body>
-	<h1><a href="../index.html">itanglo</a></h1>
-	<p>Exploring the craft of web development</p>
+<itanglo-header></itanglo-header>
 
 <h2>Desktop layout adjustments</h2>
 <p>Posted by Paolo on 5th October 2020</p>
@@ -26,5 +16,4 @@
 }</code></pre>
 <p>The styles within the media query will only be applied if the media type is screen and the min-width is 616px. In some older browsers this syntax will not work as expected and the styles will be applied even if the conditions aren't met. To prevent this I added the only keyword which modern browsers will ignore, but in older browsers it will stop the styles within the media query being applied. The CSS ruleset within the media query changes the margin property so that there are 8px on the top and bottom and the value of auto is set to the right and left. When you set the lateral margins to auto and set either a width or a max-width on an element it will center it when the viewport size is large enough. The reason I'm including this style within a media query is because I want to make sure that when the viewport is smaller, there is still a margin between the content and the edge of the viewport.</p>
 
-</body>
-</html>
+<itanglo-footer></itanglo-footer>

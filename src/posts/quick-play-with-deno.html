@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="../main.css">
-	<title>itanglo | Exploring the craft of web development</title>
-</head>
-<body>
-	<h1><a href="../index.html">itanglo</a></h1>
-	<p>Exploring the craft of web development</p>
+<itanglo-header></itanglo-header>
 
 <h2>Quick play with Deno 🦕</h2>
 <p>Posted by Paolo on 7th October 2020</p>
@@ -25,5 +15,4 @@ console.log('The value from dep1 is: ', val);</code></pre></p>
 <p><code>deno run --unstable --watch denoTest.js</code></p>
 <p>I had to also add the <code>--unstable</code> flag because Deno complained when I didn't use that in combination with the <code>--watch</code> flag. The description in the docs suggests that this flag allows you enable unstable APIs. I assume this is necessary when files are changing because APIs could potentially become unstable? Anyhow, when you run that command you should find that if you make any changes to the dep1.js file, the denoTest.js file is executed again. So if you were to change the value exported from 'Foo' to 'Bar', you should find that the value logged in the console is updated to reflect that.</p>
 
-</body>
-</html>
+<itanglo-footer></itanglo-footer>
