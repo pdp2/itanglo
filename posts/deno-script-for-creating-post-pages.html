@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="../main.css">
+	<title>itanglo | Exploring the craft of web development</title>
+</head>
+<body>
+	<h1><a href="../index.html">itanglo</a></h1>
+	<p>Exploring the craft of web development</p>
+
+<h2>Deno script for creating post pages</h2>
+<p>Posted by Paolo on 4th January 2021</p>
+
+<p>I thought I would have a crack at creating a static site generator using Deno. My first attempt was a bit ambitious and I think I had taken on too many things at once. I decided to start again and concentrate only on including repeating blocks of HTML such as the header and the footer.</p>
+<p>After <a href="https://deno.land/manual/getting_started/installation">installing Deno</a>, I created a <strong>src</strong> folder so that I could store the files that would be used to create the post pages complete with the common header and footer components. I created one file for each post and the contents of the file looked something like this:</p>
+
+<pre><code>&lt;itanglo-header&gt;&lt;/itanglo-header&gt;
+
+&lt;h2&gt;The title of the post&lt;/h2&gt;
+&lt;p&gt;Posted by Paolo on ...&lt;/p&gt;
+
+&lt;p&gt;Post content here...&lt;/p&gt;
+
+&lt;itanglo-footer&gt;&lt;/itanglo-footer&gt;
+</code></pre>
+
+<p>Next I created a file called <strong>build.js</strong> in the root of my project. The first thing I wanted the build script to do was to get the files I needed to create the post pages.</p>
+
+<pre><code>const decoder = new TextDecoder();
+const postsSrc = './src/posts/';
+const componentsDir = './src/components/';
+
+let postContent = [];
+
+// Get post content from post src files
+for await (const dirEntry of Deno.readDir(postsSrc)) {
+    const postFileData = await Deno.readFile(postsSrc + dirEntry.name);
+    const postFileContent = decoder.decode(postFileData);
+
+    postContent.push({
+        path: dirEntry.name,
+        content: postFileContent
+    });
+}
+</code></pre>
+
+<p>I was not familiar with the <code>for await</code> syntax before, but it came in handy for iterating over the response of the asynchronous <code>Deno.readDir()</code> method. For each iteration the value was saved to the <code>dirEntry</code> variable and this in turn was used to access the name of the file and construct the path to send to the <code>Deno.readFile()</code> method. The <code>TextDecoder</code> instance created at the start was used to convert the file data in to a content string and then this was saved to an object literal along with the file name and pushed to the <code>postContent</code> array.</p>
+
+<p>Once I had the content for the posts, I had to parse them in order to replace any component tags i.e. <code>&lt;itanglo-header&gt;&lt;/itanglo-header&gt;</code> with the content from the component.</p>
+
+<pre><code>// Find references to components in post content and render components if they exist
+postContent.forEach(async post => {
+    const data = { basePath: '../' };
+    const components = await getComponents(post.content, data);
+    let finalHTML = post.content;
+
+    components.forEach(component => {
+        finalHTML = finalHTML.replace(component.strToReplace, component.content);
+    });
+
+    Deno.writeTextFile('./posts/' + post.path, finalHTML);
+});
+</code></pre>
+
+<p>The code above, loops over the <code>postContent</code> array, making sure to specify that the callback function is asynchronous by adding the <code>async</code> keyword before the <code>post</code> variable. The <code>data</code> variable is passed to the <code>getComponents()</code> function, which I will cover in a bit more detail later, along with the content of the post for that iteration of the loop. The result is an array of component objects. I use a <code>let</code> variable to store the initial value of the post content because this will be updated when we loop over the components, provided there are any. Each component object has a <code>strToReplace</code> and a <code>content</code> property and these are used in the loop to update the final HTML that will be written to the file using the <code>Deno.writeTextFile()</code> method.</p>
+
+<p>The <code>getComponents</code> function is asynchronous and returns a promise that when resolved is passed the array of components it found in the content. Below is what the function looks like:</p>
+
+<pre><code>async function getComponents(postContent, data) {
+    return new Promise(resolve => {
+        let components = [];
+        
+        const componentRegExp = /<(itanglo-[a-zA-Z-]+)\s*.*><\/\1>/g;
+        const matches = [...postContent.matchAll(componentRegExp)];
+        
+        matches.forEach(async (match, matchIndex, matchArray) => {
+            const [strToReplace, componentName]  = match;
+            const componentFileData = await Deno.readFile(componentsDir + componentName + '.template.html');
+            let componentFileContent = decoder.decode(componentFileData);
+
+            if (data) {
+                const interpolationRegExp = /{{(.+)}}/g;
+                const interpolationMatches = [...componentFileContent.matchAll(interpolationRegExp)]
+                
+                interpolationMatches.forEach(match => {
+                    const [ strToReplace, key ] = match;
+                    const value = data[key];
+
+                    if (value) {
+                        componentFileContent = componentFileContent.replace(strToReplace, value);
+                    }
+                })
+            }
+    
+            components.push({
+                name: componentName,
+                content: componentFileContent,
+                strToReplace
+            });
+
+            // last item in array
+            if (!matchArray[matchIndex + 1]) {
+                resolve(components);
+            }
+        });
+    });
+}
+</code></pre>
+
+<p>The function is passed two arguments which are <code>postContent</code> and <code>data</code>. Using a regular expression the function looks for any instances in the content of a component element, for example: <code>&lt;itanglo-header&gt;&lt;/itanglo-header&gt;</code>. The next step is to loop through any matches and then if data is passed to interpolate it using another regular expression which looks for syntax borrowed from the mustache templating engine: <code>{{stringToInterpolate}}</code>. Once the content of the component has been updated with any data provided it is pushed to the components array and on the last iteration of the loop the promise is resolved with the components.</code></p>
+
+</body>
+</html>
