@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="../main.css">
+	<title>itanglo | Exploring the craft of web development</title>
+</head>
+<body>
+	<h1><a href="/">itanglo</a></h1>
+	<p>Exploring the craft of web development</p>
+
+<form id="newPostForm">
+	<input type="text" id="postTitle" name="title">
+	<button type="submit" id="submitBtn">Post</button>
+</form>
+<script>
+	const input = document.getElementById('postTitle');
+	const submitBtn = document.getElementById('submitBtn');
+	const form = document.getElementById('newPostForm');
+	
+	form.addEventListener('submit', (e) => {
+		e.preventDefault();
+		console.log(input.value);
+	});
+</script>
+
+</body>
+</html>

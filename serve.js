@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.87.0/http/server.ts";
 
-const decoder = new TextDecoder();
 const port = 8084;
 const server = serve({ port });
 
@@ -11,8 +10,12 @@ for await (const req of server) {
   console.log(`${req.method}: ${req.url} \n`);
 
   if (req.method === 'GET') {
-    if (req.url === '/') {
-      const fileData = await Deno.readFile('./new-post.html');
+    if (req.url === '/new-post') {
+      const fileData = await Deno.readFile('./docs/new-post.html');
+      req.respond({ status: 200, body: fileData });
+    }
+    else if (req.url === '/') {
+      const fileData = await Deno.readFile('./docs/index.html');
       req.respond({ status: 200, body: fileData });
     }
     else {

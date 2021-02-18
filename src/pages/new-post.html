@@ -1,0 +1,19 @@
+
+<itanglo-header></itanglo-header>
+
+<form id="newPostForm">
+	<input type="text" id="postTitle" name="title">
+	<button type="submit" id="submitBtn">Post</button>
+</form>
+<script>
+	const input = document.getElementById('postTitle');
+	const submitBtn = document.getElementById('submitBtn');
+	const form = document.getElementById('newPostForm');
+	
+	form.addEventListener('submit', (e) => {
+		e.preventDefault();
+		console.log(input.value);
+	});
+</script>
+
+<itanglo-footer></itanglo-footer>
