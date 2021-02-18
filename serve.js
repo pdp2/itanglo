@@ -42,6 +42,17 @@ for await (const req of server) {
 
     }
   }
+  else if (req.method === 'POST') {
+    const body = await Deno.readAll(req.body);
+    const headers = new Headers();
+    
+    headers.append('Content-Type', 'application/json');
+    req.respond({ 
+      status: 200,
+      headers,
+      body 
+    });
+  }
   else {
     req.respond({ body: 'Sorry that request type is not supported.' });
   }
