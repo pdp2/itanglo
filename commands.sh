@@ -3,7 +3,7 @@
 case "$1" in 
 	"serve")
 		echo "Starting serve task"
-		deno run --allow-net --allow-read serve.js
+		deno run --allow-net --allow-read --allow-write --unstable --watch serve.js
 		;;
 	"build")
 		echo "Starting build task"

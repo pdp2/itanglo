@@ -2,17 +2,52 @@
 <itanglo-header></itanglo-header>
 
 <form id="newPostForm">
-	<input type="text" id="postTitle" name="title">
-	<button type="submit" id="submitBtn">Post</button>
+	<input type="text" id="postTitle" name="title" class="itanglo-textInput">
+	<textarea name="postBody" id="postBody" cols="30" rows="10" class="itanglo-textInput itanglo-textArea"></textarea>
+	<button type="submit" id="submitBtn" class="itanglo-submitBtn"><span>Post</span></button>
 </form>
+
+<p id="pageStatus"></p>
+
 <script>
-	const input = document.getElementById('postTitle');
+	const titleInput = document.getElementById('postTitle');
+	const bodyInput = document.getElementById('postBody');
 	const submitBtn = document.getElementById('submitBtn');
 	const form = document.getElementById('newPostForm');
+	const pageStatus = document.getElementById('pageStatus');
+	const hideClass = 'hide';
+	const statusMessages = {
+		loading: 'Loading...',
+		success: 'That went well 🤓',
+		error: 'Hmmm, something seems to have gone wrong 🤨'
+	};
 	
 	form.addEventListener('submit', (e) => {
 		e.preventDefault();
-		console.log(input.value);
+
+		const h3RegEx = /###\s*(.+)/g;
+		const body = bodyInput.value.replace(h3RegEx, '<h3>$1</h3>');
+
+		fetch('/post', {
+			method: 'POST',
+			body: JSON.stringify({
+				title: titleInput.value,
+				body
+			})
+		}).then(response => {
+			pageStatus.innerHTML = statusMessages.loading;
+
+			if (response.status === 200) {
+				// handle success
+				pageStatus.innerHTML = statusMessages.success;
+				titleInput.value = '';
+				bodyInput.value = '';
+			}
+			else {
+				// handle error
+				pageStatus.innerHTML = statusMessages.error;
+			}
+		});
 	});
 </script>
 

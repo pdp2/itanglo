@@ -1,5 +1,53 @@
-import { serve } from "https://deno.land/std@0.87.0/http/server.ts";
+import { serve } from 'https://deno.land/std@0.87.0/http/server.ts';
+import { v4 } from 'https://deno.land/std@0.88.0/uuid/mod.ts';
+import ambrogio from './ambrogio.js';
 
+ambrogio.listen(1234);
+
+ambrogio.get('/', async (req) => {
+  const fileData = await Deno.readFile('./docs/index.html');
+  req.respond({ status: 200, body: fileData });
+});
+
+ambrogio.get('/new-post', async (req) => {
+  const fileData = await Deno.readFile('./docs/new-post.html');
+  req.respond({ status: 200, body: fileData });
+});
+
+ambrogio.post('/post', async (req) => {
+  const bodyData = await Deno.readAll(req.body);
+  const { title, body } = JSON.parse(decoder.decode(bodyData));
+  
+  if (title) {
+    const existingPostsData = await Deno.readFile('./posts.json');
+    const newPost = {
+      id: v4.generate(),
+      title,
+      body
+    };
+
+    let posts = JSON.parse(decoder.decode(existingPostsData)).posts || [];
+
+    posts.push(newPost);
+
+    const postsJSON = JSON.stringify({ posts });
+
+    Deno.writeTextFile('./posts.json', postsJSON);
+
+    req.respond({
+      status: 200,
+      body: newPost.id
+    });
+  }
+  else {
+    req.respond({
+      status: 400,
+      body: 'A title is required to create a new post.'
+    })
+  }
+});
+
+const decoder = new TextDecoder();
 const port = 8084;
 const server = serve({ port });
 
@@ -8,50 +56,11 @@ console.log(`http://localhost:${port} \n`);
 for await (const req of server) {
 
   console.log(`${req.method}: ${req.url} \n`);
+  if (req.method === 'POST') {
 
-  if (req.method === 'GET') {
     if (req.url === '/new-post') {
-      const fileData = await Deno.readFile('./docs/new-post.html');
-      req.respond({ status: 200, body: fileData });
+       
     }
-    else if (req.url === '/') {
-      const fileData = await Deno.readFile('./docs/index.html');
-      req.respond({ status: 200, body: fileData });
-    }
-    else {
-      const fileData = await Deno.readFile(`.${req.url}`);
-      const headers = new Headers();
-
-      if (fileData) {
-        if (req.url.indexOf('.css') > 1) {
-          headers.append('Content-Type', 'text/css; charset=utf-8')
-        }
-
-        req.respond({ 
-          status: 200,
-          headers,
-          body: fileData 
-        });
-      }
-      else {
-        req.respond({ 
-          status: 404,
-          body: '404 Not found' 
-        });
-      }
-
-    }
-  }
-  else if (req.method === 'POST') {
-    const body = await Deno.readAll(req.body);
-    const headers = new Headers();
-    
-    headers.append('Content-Type', 'application/json');
-    req.respond({ 
-      status: 200,
-      headers,
-      body 
-    });
   }
   else {
     req.respond({ body: 'Sorry that request type is not supported.' });
