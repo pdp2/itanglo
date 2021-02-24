@@ -27,4 +27,3 @@ includeTagMatches.forEach(async (match, index, array) => {
 		console.log(`Created ${indexTargetPath}. \n`);
 	}
 });
-
