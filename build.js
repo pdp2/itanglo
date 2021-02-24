@@ -149,10 +149,17 @@ async function getComponents(postContent, data) {
 
 async function getPosts() {
 	return new Promise(async resolve => {
-		const file = await Deno.readFile('./posts.json');
-		const content = decoder.decode(file);
-		const data = JSON.parse(content);
+		try {
+			const file = await Deno.readFile('./posts.json');
+			const content = decoder.decode(file);
+			const data = JSON.parse(content);
+			resolve(data.posts);
+		}
+		catch (e) {
+			console.log(e);
 
-		resolve(data.posts);
+			resolve({});
+		}
+		
 	});
 }

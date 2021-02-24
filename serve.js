@@ -20,14 +20,25 @@ ambrogio.post('/post', async (req) => {
   const { title, body } = JSON.parse(decoder.decode(bodyData));
   
   if (title) {
-    const existingPostsData = await Deno.readFile('./posts.json');
+    let existingPostsData;
+    try {
+      existingPostsData = await Deno.readFile('./posts.json');
+    }
+    catch(e) {
+      console.log('Unable to read posts.json file, maybe it doesn\'t exist yet?');
+    }
+
     const newPost = {
       id: v4.generate(),
       title,
       body
     };
 
-    let posts = JSON.parse(decoder.decode(existingPostsData)).posts || [];
+    let posts = [];
+
+    if (typeof existingPostsData === 'string') {
+      posts = JSON.parse(decoder.decode(existingPostsData)).posts || [];
+    }
 
     posts.push(newPost);
 
