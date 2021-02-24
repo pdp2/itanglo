@@ -46,23 +46,3 @@ ambrogio.post('/post', async (req) => {
     })
   }
 });
-
-const decoder = new TextDecoder();
-const port = 8084;
-const server = serve({ port });
-
-console.log(`http://localhost:${port} \n`);
-
-for await (const req of server) {
-
-  console.log(`${req.method}: ${req.url} \n`);
-  if (req.method === 'POST') {
-
-    if (req.url === '/new-post') {
-       
-    }
-  }
-  else {
-    req.respond({ body: 'Sorry that request type is not supported.' });
-  }
-}
