@@ -6,12 +6,39 @@ const componentsDir = './src/components/';
 
 const indexPageFile = await Deno.readFile('./src/pages/index.html');
 const indexContent = decoder.decode(indexPageFile);
-const indexComponents = await getComponents(indexContent, { basePath: '../' });
+const indexComponents = await getComponents(indexContent, { 
+	basePath: '../', 
+	posts: [
+		{
+			title: 'Test 1',
+			body: 'Body for 1.'
+		},
+		{
+			title: 'Test 2',
+			body: 'Body for 2.'
+		},
+		{
+			title: 'Test 1',
+			body: 'Body for 3.'
+		}
+	]
+});
+
 let indexHtml = indexContent;
 
-indexComponents.forEach(component => {
+indexComponents.regular.forEach(component => { 
 	indexHtml = indexHtml.replace(component.strToReplace, component.content);
 });
+
+let loopComponentContent = '';
+// can use the first one as the string to replace should be the same for all
+let loopComponentStrToReplace = indexComponents.withLoop[0].strToReplace;
+
+indexComponents.withLoop.forEach(component => {
+	loopComponentContent += component.content;
+});
+
+indexHtml = indexHtml.replace(loopComponentStrToReplace, loopComponentContent);
 
 Deno.writeTextFile('./docs/index.html', indexHtml);
 
@@ -24,7 +51,7 @@ const newPostContent = decoder.decode(newPostFile);
 const newPostComponents = await getComponents(newPostContent, { basePath: '../' });
 let newPostHtml = newPostContent;
 
-newPostComponents.forEach(component => {
+newPostComponents.regular.forEach(component => {
 	newPostHtml = newPostHtml.replace(component.strToReplace, component.content);
 });
 
@@ -51,7 +78,7 @@ postContent.forEach(async post => {
 	const components = await getComponents(post.content, data);
 	let finalHTML = post.content;
 
-	components.forEach(component => {
+	components.regular.forEach(component => {
 		finalHTML = finalHTML.replace(component.strToReplace, component.content);
 	});
 
@@ -60,16 +87,19 @@ postContent.forEach(async post => {
 
 async function getComponents(postContent, data) {
 	return new Promise(resolve => {
-		let components = [];
+		let components = {
+			regular: [],
+			withLoop: []
+		};
 		
 		const componentRegExp = /<(itanglo-[a-zA-Z-]+)\s*.*><\/\1>/g;
-		const matches = [...postContent.matchAll(componentRegExp)];
+		const componentMatches = [...postContent.matchAll(componentRegExp)];
 		
-		matches.forEach(async (match, matchIndex, matchArray) => {
-			const [strToReplace, componentName]  = match;
+		componentMatches.forEach(async (match, matchIndex, matchArray) => {
+			const [strToReplace, componentName] = match;
 			const componentFileData = await Deno.readFile(componentsDir + componentName + '.template.html');
 			let componentFileContent = decoder.decode(componentFileData);
-
+			
 			if (data) {
 				const interpolationRegExp = /{{(.+)}}/g;
 				const interpolationMatches = [...componentFileContent.matchAll(interpolationRegExp)]
@@ -81,15 +111,46 @@ async function getComponents(postContent, data) {
 					if (value) {
 						componentFileContent = componentFileContent.replace(strToReplace, value);
 					}
-				})
+				});
+			}
+
+			const loopRegExp = /data-for="([a-zA-Z0-9]+)\sin\s([a-zA-Z0-9]+)"/;
+			const loopMatch = strToReplace.match(loopRegExp);
+				
+			if (loopMatch) {
+				const [ ,,dataKey ] = loopMatch;
+				const loopData = data[dataKey]
+
+				loopData.forEach(item => {
+					let loopComponentFileContent = componentFileContent;
+					const interpolationRegExp = /{{(.+)}}/g;
+					const interpolationMatches = [...loopComponentFileContent.matchAll(interpolationRegExp)]
+					
+					interpolationMatches.forEach(match => {
+						const [ strToReplace, key ] = match;
+						const value = item[key];
+
+						if (value) {
+							loopComponentFileContent = loopComponentFileContent.replace(strToReplace, value);
+						}
+					});
+
+					components.withLoop.push({
+						name: componentName,
+						content: loopComponentFileContent,
+						strToReplace
+					});
+				});
+
+			}
+			else {
+				components.regular.push({
+					name: componentName,
+					content: componentFileContent,
+					strToReplace
+				});
 			}
 	
-			components.push({
-				name: componentName,
-				content: componentFileContent,
-				strToReplace
-			});
-
 			// last item in array
 			if (!matchArray[matchIndex + 1]) {
 				resolve(components);
