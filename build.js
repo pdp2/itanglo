@@ -6,23 +6,8 @@ const componentsDir = './src/components/';
 
 const indexPageFile = await Deno.readFile('./src/pages/index.html');
 const indexContent = decoder.decode(indexPageFile);
-const indexComponents = await getComponents(indexContent, { 
-	basePath: '../', 
-	posts: [
-		{
-			title: 'Test 1',
-			body: 'Body for 1.'
-		},
-		{
-			title: 'Test 2',
-			body: 'Body for 2.'
-		},
-		{
-			title: 'Test 1',
-			body: 'Body for 3.'
-		}
-	]
-});
+const posts = await getPosts();
+const indexComponents = await getComponents(indexContent, { basePath: '../', posts });
 
 let indexHtml = indexContent;
 
@@ -121,29 +106,30 @@ async function getComponents(postContent, data) {
 				
 			if (loopMatch) {
 				const [ ,,dataKey ] = loopMatch;
-				const loopData = data[dataKey]
-
-				loopData.forEach(item => {
-					let loopComponentFileContent = componentFileContent;
-					const interpolationRegExp = /{{(.+)}}/g;
-					const interpolationMatches = [...loopComponentFileContent.matchAll(interpolationRegExp)]
-					
-					interpolationMatches.forEach(match => {
-						const [ strToReplace, key ] = match;
-						const value = item[key];
-
-						if (value) {
-							loopComponentFileContent = loopComponentFileContent.replace(strToReplace, value);
-						}
+				const loopData = data[dataKey] || [];
+				
+				if (loopData.length) {
+					loopData.forEach(item => {
+						let loopComponentFileContent = componentFileContent;
+						const interpolationRegExp = /{{(.+)}}/g;
+						const interpolationMatches = [...loopComponentFileContent.matchAll(interpolationRegExp)]
+						
+						interpolationMatches.forEach(match => {
+							const [ strToReplace, key ] = match;
+							const value = item[key];
+	
+							if (value) {
+								loopComponentFileContent = loopComponentFileContent.replace(strToReplace, value);
+							}
+						});
+	
+						components.withLoop.push({
+							name: componentName,
+							content: loopComponentFileContent,
+							strToReplace
+						});
 					});
-
-					components.withLoop.push({
-						name: componentName,
-						content: loopComponentFileContent,
-						strToReplace
-					});
-				});
-
+				}
 			}
 			else {
 				components.regular.push({
@@ -158,5 +144,15 @@ async function getComponents(postContent, data) {
 				resolve(components);
 			}
 		});
+	});
+}
+
+async function getPosts() {
+	return new Promise(async resolve => {
+		const file = await Deno.readFile('./posts.json');
+		const content = decoder.decode(file);
+		const data = JSON.parse(content);
+
+		resolve(data.posts);
 	});
 }

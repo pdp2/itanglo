@@ -1,6 +1,7 @@
-import { serve } from 'https://deno.land/std@0.87.0/http/server.ts';
 import { v4 } from 'https://deno.land/std@0.88.0/uuid/mod.ts';
 import ambrogio from './ambrogio.js';
+
+const decoder = new TextDecoder();
 
 ambrogio.listen(1234);
 

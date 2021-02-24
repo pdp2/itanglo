@@ -6,7 +6,7 @@ export default {
 	async listen(port) {
 		const server = serve({ port });
 
-		console.log(`Ambrogio says: Listening on ${port} \n`);
+		console.log(`Ambrogio says: Listening on http://localhost:${port} \n`);
 
 		for await (const req of server) {
 			const { method, url: path } = req;
