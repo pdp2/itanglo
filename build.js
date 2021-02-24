@@ -30,15 +30,17 @@ indexComponents.regular.forEach(component => {
 	indexHtml = indexHtml.replace(component.strToReplace, component.content);
 });
 
-let loopComponentContent = '';
-// can use the first one as the string to replace should be the same for all
-let loopComponentStrToReplace = indexComponents.withLoop[0].strToReplace;
-
-indexComponents.withLoop.forEach(component => {
-	loopComponentContent += component.content;
-});
-
-indexHtml = indexHtml.replace(loopComponentStrToReplace, loopComponentContent);
+if (indexComponents.withLoop.length) {
+	let loopComponentContent = '';
+	// can use the first one as the string to replace should be the same for all
+	let loopComponentStrToReplace = indexComponents.withLoop[0].strToReplace;
+	
+	indexComponents.withLoop.forEach(component => {
+		loopComponentContent += component.content;
+	});
+	
+	indexHtml = indexHtml.replace(loopComponentStrToReplace, loopComponentContent);
+}
 
 Deno.writeTextFile('./docs/index.html', indexHtml);
 
