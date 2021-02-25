@@ -4,6 +4,10 @@ body {
 	max-width: 600px;
 }
 
+h1 {
+	font-family: 'IBM Plex Mono', monospace;
+}
+
 p {
 	line-height: 1.5;
 }
