@@ -6,10 +6,16 @@ body {
 
 h1 {
 	font-family: 'IBM Plex Mono', monospace;
+	margin-bottom: 0;
 }
 
 p {
 	line-height: 1.5;
+}
+
+.tagline {
+	font-style: italic;
+	margin-top: 0;
 }
 
 @media only screen and (min-width: 616px) {
