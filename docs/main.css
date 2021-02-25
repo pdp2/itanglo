@@ -1,7 +1,10 @@
 body {
+	display: flex;
+	flex-direction: column;
 	font-family: sans-serif;
-	margin: 8px;
+	margin: 0 8px;
 	max-width: 600px;
+	min-height: 100vh;
 }
 
 h1 {
@@ -28,8 +31,12 @@ header {
 	width: 50px;
 }
 
+main {
+	flex: 1;
+}
+
 @media only screen and (min-width: 616px) {
 	body {
-		margin: 8px auto;
+		margin: 0 auto;
 	}
 }
