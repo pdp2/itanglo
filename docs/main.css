@@ -13,9 +13,19 @@ p {
 	line-height: 1.5;
 }
 
+header {
+	display: flex;
+}
+
 .tagline {
 	font-style: italic;
 	margin-top: 0;
+}
+
+.logo {
+	color: #00b8a9;
+	margin-right: 10px;
+	width: 50px;
 }
 
 @media only screen and (min-width: 616px) {
