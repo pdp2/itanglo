@@ -6,24 +6,77 @@
 console.log('Starting build task. \n');
 
 const decoder = new TextDecoder();
+// Populated when creating post files
+let excerpts = [];
+
+// Build post files
+const postsFilePaths = await Deno.readDir('./src/posts');
+// Get dirEntry for each file in the posts directory
+for await (const dirEntry of postsFilePaths) {
+	// Read file and decode
+	const filePath = dirEntry.name;
+	const postFile = await Deno.readFile(`./src/posts/${filePath}`);
+	const postContent = decoder.decode(postFile);
+	const excerpt = postContent.match(/<article>[\s\S]*<\/article>/)[0];
+
+	excerpts.push(excerpt);
+
+	parseIncludeTags(postContent).then(content => {
+		const postTargetPath = `./docs/${filePath}`;
+			
+		Deno.writeTextFile(postTargetPath, content);
+		
+		console.log(`Created ${postTargetPath}. \n`);
+	});
+}
+
+// Build index page
 const indexFile = await Deno.readFile('./src/index.html');
 let indexContent = decoder.decode(indexFile);
-// Spread syntax converts to array because matchAll returns a RegExp String Iterator
-const includeTagMatches = [...indexContent.matchAll(/<itanglo-include src="(.+)"><\/itanglo-include>/g)];
 
-includeTagMatches.forEach(async (match, index, array) => {
-	const [includeTag, src] = match;
-	const includeFile = await Deno.readFile(src);
-	const includeContent = decoder.decode(includeFile);
+parseIncludeTags(indexContent).then(content => {
+	// Add excerpts
+	content = content.replace('{{excerpts}}', excerpts.join(''));
 
-	indexContent = indexContent.replace(includeTag, includeContent);
+	const indexTargetPath = './docs/index.html';
+		
+	Deno.writeTextFile(indexTargetPath, content);
 	
-	// on last iteration write index file in docs folder
-	if (!array[index + 1]) {
-		const indexTargetPath = './docs/index.html';
-		
-		Deno.writeTextFile(indexTargetPath, indexContent);
-		
-		console.log(`Created ${indexTargetPath}. \n`);
-	}
+	console.log(`Created ${indexTargetPath}. \n`);
 });
+
+/**
+ * Parses the content passed as the argument, checks for any include tags and replaces
+ * them with the content from the include file.
+ * 
+ * @method parseIncludeTags
+ * @param {String} content
+ * @returns {Promise} resolves with the updated content
+ */
+function parseIncludeTags(content) {
+	return new Promise((resolve, reject) => {
+		// Spread syntax converts to array because matchAll returns a RegExp String Iterator
+		const includeTagMatches = [...content.matchAll(/<itanglo-include src="(.+)"><\/itanglo-include>/g)];
+	
+		includeTagMatches.forEach(async (match, index, array) => {
+			const [includeTag, src] = match;
+			
+			try {
+				const includeFile = await Deno.readFile(src);
+				const includeContent = decoder.decode(includeFile);
+		
+				content = content.replace(includeTag, includeContent);
+				
+				// on last iteration write index file in docs folder
+				if (!array[index + 1]) {
+					resolve(content);
+				}
+			}
+			catch (e) {
+				console.log(error);
+
+				reject(e);
+			}
+		});
+	});
+}
