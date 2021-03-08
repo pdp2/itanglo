@@ -21,29 +21,25 @@ for await (const dirEntry of postsFilePaths) {
 
 	excerpts.push(excerpt);
 
-	parseIncludeTags(postContent).then(content => {
-		const postTargetPath = `./docs/${filePath}`;
+	const postOutput = await parseIncludeTags(postContent);
+	const postTargetPath = `./docs/${filePath}`;
 			
-		Deno.writeTextFile(postTargetPath, content);
-		
-		console.log(`Created ${postTargetPath}. \n`);
-	});
+	Deno.writeTextFile(postTargetPath, postOutput);
+	
+	console.log(`Created ${postTargetPath}. \n`);
 }
 
 // Build index page
 const indexFile = await Deno.readFile('./src/index.html');
+const indexTargetPath = './docs/index.html';
 let indexContent = decoder.decode(indexFile);
+let indexOutput = await parseIncludeTags(indexContent)
 
-parseIncludeTags(indexContent).then(content => {
-	// Add excerpts
-	content = content.replace('{{excerpts}}', excerpts.join(''));
+indexOutput = indexOutput.replace('{{excerpts}}', excerpts.join(''));
 
-	const indexTargetPath = './docs/index.html';
-		
-	Deno.writeTextFile(indexTargetPath, content);
-	
-	console.log(`Created ${indexTargetPath}. \n`);
-});
+Deno.writeTextFile(indexTargetPath, indexOutput);
+
+console.log(`Created ${indexTargetPath}. \n`);
 
 /**
  * Parses the content passed as the argument, checks for any include tags and replaces
@@ -53,7 +49,7 @@ parseIncludeTags(indexContent).then(content => {
  * @param {String} content
  * @returns {Promise} resolves with the updated content
  */
-function parseIncludeTags(content) {
+async function parseIncludeTags(content) {
 	return new Promise((resolve, reject) => {
 		// Spread syntax converts to array because matchAll returns a RegExp String Iterator
 		const includeTagMatches = [...content.matchAll(/<itanglo-include src="(.+)"><\/itanglo-include>/g)];

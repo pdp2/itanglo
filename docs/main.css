@@ -29,6 +29,10 @@ a:hover {
 	text-decoration: underline;
 }
 
+pre {
+	overflow: auto;
+}
+
 .mainHeader {
 	display: flex;
 }
