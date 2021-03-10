@@ -8,23 +8,26 @@ console.log('Starting build task. \n');
 const decoder = new TextDecoder();
 // Populated when creating post files
 let excerpts = [];
+// Cache include to avoid reading file again
+let cachedIncludes = [];
 
 // Build post files
 const postsFilePaths = await Deno.readDir('./src/posts');
 // Get dirEntry for each file in the posts directory
 for await (const dirEntry of postsFilePaths) {
 	// Read file and decode
-	const filePath = dirEntry.name;
-	const postFile = await Deno.readFile(`./src/posts/${filePath}`);
+	const fileName = dirEntry.name;
+	const postFile = await Deno.readFile(`./src/posts/${fileName}`);
 	const postContent = decoder.decode(postFile);
 	const excerpt = postContent.match(/<article>[\s\S]*<\/article>/)[0];
 
 	excerpts.push(excerpt);
 
 	const postOutput = await parseIncludeTags(postContent);
-	const postTargetPath = `./docs/${filePath}`;
+	// Regex below removes number prefix from file
+	const postTargetPath = `./docs/${fileName.replace(/^\d+-/, '')}`;
 			
-	Deno.writeTextFile(postTargetPath, postOutput);
+	await Deno.writeTextFile(postTargetPath, postOutput);
 	
 	console.log(`Created ${postTargetPath}. \n`);
 }
@@ -35,9 +38,12 @@ const indexTargetPath = './docs/index.html';
 let indexContent = decoder.decode(indexFile);
 let indexOutput = await parseIncludeTags(indexContent)
 
+// Sort excerpts so that most recent post appears on top
+excerpts = excerpts.reverse();
+
 indexOutput = indexOutput.replace('{{excerpts}}', excerpts.join(''));
 
-Deno.writeTextFile(indexTargetPath, indexOutput);
+await Deno.writeTextFile(indexTargetPath, indexOutput);
 
 console.log(`Created ${indexTargetPath}. \n`);
 
@@ -50,29 +56,32 @@ console.log(`Created ${indexTargetPath}. \n`);
  * @returns {Promise} resolves with the updated content
  */
 async function parseIncludeTags(content) {
-	return new Promise((resolve, reject) => {
+	return new Promise(async (resolve) => {
 		// Spread syntax converts to array because matchAll returns a RegExp String Iterator
 		const includeTagMatches = [...content.matchAll(/<itanglo-include src="(.+)"><\/itanglo-include>/g)];
-	
-		includeTagMatches.forEach(async (match, index, array) => {
-			const [includeTag, src] = match;
-			
-			try {
-				const includeFile = await Deno.readFile(src);
-				const includeContent = decoder.decode(includeFile);
 		
-				content = content.replace(includeTag, includeContent);
-				
-				// on last iteration write index file in docs folder
-				if (!array[index + 1]) {
-					resolve(content);
-				}
-			}
-			catch (e) {
-				console.log(error);
+		for (const match of includeTagMatches) {
+			const [includeTag, src] = match;
+			const cachedInclude = cachedIncludes.find(include => include.src === src);
+			let includeContent;
 
-				reject(e);
+			if (cachedInclude) {
+				console.log(`Getting include: ${cachedInclude.src} from include cache. \n`);
+				
+				includeContent = cachedInclude.includeContent;
 			}
-		});
+			else {
+				console.log(`Reading include: ${src} from file. \n`);
+				
+				const includeFile = await Deno.readFile(src);
+				
+				includeContent = decoder.decode(includeFile);
+				cachedIncludes.push({	src, includeContent });
+			}
+
+			content = content.replace(includeTag, includeContent);
+		}
+
+		resolve(content);
 	});
 }

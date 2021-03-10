@@ -7,7 +7,6 @@ body {
 	flex-direction: column;
 	font-family: 'Work Sans', sans-serif;
 	margin: 0 8px;
-	max-width: 600px;
 	min-height: 100vh;
 }
 
@@ -31,10 +30,30 @@ a:hover {
 
 pre {
 	overflow: auto;
+	padding: 10px;
+    background: #efefef;
+    border-radius: 5px;
+}
+
+code {
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+article :not(pre) code {
+    background: #efefef;
+    border-radius: 3px;
+    padding: 3px;
+}
+
+article + article {
+	margin-top: 60px;
 }
 
 .mainHeader {
 	display: flex;
+	padding: 20px;
 }
 
 .tagline {
@@ -54,6 +73,7 @@ pre {
 
 main {
 	flex: 1;
+	max-width: 600px;
 }
 
 .postHeader {
@@ -74,8 +94,19 @@ main {
 	margin-top: 0;
 }
 
+footer {
+	background: #383838;
+    color: #fff;
+	margin-top: 60px;
+	padding: 20px;
+}
+
 @media only screen and (min-width: 616px) {
 	body {
+		margin: 0 auto;
+	}
+
+	main {
 		margin: 0 auto;
 	}
 }
