@@ -51,7 +51,7 @@ article {
 article :not(pre) code {
     background: #eef0f1;
     border-radius: 3px;
-    padding: 3px;
+    padding: 1px 3px;
 }
 
 article + article {
