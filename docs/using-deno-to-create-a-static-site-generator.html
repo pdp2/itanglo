@@ -19,7 +19,8 @@
 			<p class="tagline">Exploring the craft of web development</p>
 		</div>
 	</header>
-<main><article>
+	<main>
+		<article>
 			<header class="postHeader">
 				<h2><a href="./using-deno-to-create-a-static-site-generator.html">Using Deno to create a static site generator</a></h2>
 				<p class="postMeta">Posted by Paolo on Ddd DD Mmm at 00:00</p>
@@ -148,14 +149,8 @@ async function parseIncludeTags(content) {
 			<p>The <code>parseIncludeTags</code> function accepts the content to be parsed as the only parameter and it returns a promise which resolves with the updated content. The main purpose of the function is to find include tags and to replace them with the relevant content. To begin with in the body of the promise function I use a regular expression to match all the include tags in the content and save them to the <code>includeTagMatches</code> variable. If you are wondering why I used the spread syntax this is because the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll"><code>String.prototype.matchAll</code></a> method returns an iterator so the spread operator is used to put the resulting items into an array.</p>
 			<p>There is another interesting statement that I used for the first time when writing this function and that is the <code>for … of</code> statement. I was looking for a reliable way of using the <code>async / await</code> syntax inside a for loop and then I found <a href="https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop">this answer on stack overflow</a>. Inside the loop, first I check if the content of the include has been cached so that I can avoid having to read the file again. If it wasn't then the data is read from the relevant file, decoded and the content is added to the cache. Finally the include tags are replaced with the content and after the loop is finished the promise is resolved with the updated content.</p>
 			<p>If you want to have a look at the code I have been referring to, you can see this in my <a href="https://github.com/pdp2/itanglo">GitHub repository</a>. Thanks for reading.</p>
-		</article><article>
-		<header class="postHeader">
-			<h2><a href="./hello-world.html">Hello world!</a></h2>
-			<p class="postMeta">Posted by Paolo on Thu 25th Feb at 14:55</p>
-		</header>
-		<p>Testing, testing, is this thing on?</p>
-		<p>Seems to be working, or at least, it works for me!</p>
-	</article></main>
+		</article>
+	</main>
 	<footer>
 		<p>&copy; 2021 itanglo software</p>
 		<p>Logo icon <a href="https://fontawesome.com/icons/laptop-code">laptop-code</a> by <a href="https://fontawesome.com/license">Font Awesome</a></p>

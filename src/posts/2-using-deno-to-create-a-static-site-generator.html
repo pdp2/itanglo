@@ -1,25 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="preconnect" href="https://fonts.gstatic.com">
-	<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="./main.css">
-	<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
-	<title>itanglo | Exploring the craft of web development</title>
-</head>
-<body><!-- closing body tag is in footer.html include -->
-	<header class="mainHeader">
-		<!-- Logo icon-->
-		<a href="./index.html" class="homeLink"><svg class="logo" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="laptop-code" class="svg-inline--fa fa-laptop-code fa-w-20" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M255.03 261.65c6.25 6.25 16.38 6.25 22.63 0l11.31-11.31c6.25-6.25 6.25-16.38 0-22.63L253.25 192l35.71-35.72c6.25-6.25 6.25-16.38 0-22.63l-11.31-11.31c-6.25-6.25-16.38-6.25-22.63 0l-58.34 58.34c-6.25 6.25-6.25 16.38 0 22.63l58.35 58.34zm96.01-11.3l11.31 11.31c6.25 6.25 16.38 6.25 22.63 0l58.34-58.34c6.25-6.25 6.25-16.38 0-22.63l-58.34-58.34c-6.25-6.25-16.38-6.25-22.63 0l-11.31 11.31c-6.25 6.25-6.25 16.38 0 22.63L386.75 192l-35.71 35.72c-6.25 6.25-6.25 16.38 0 22.63zM624 416H381.54c-.74 19.81-14.71 32-32.74 32H288c-18.69 0-33.02-17.47-32.77-32H16c-8.8 0-16 7.2-16 16v16c0 35.2 28.8 64 64 64h512c35.2 0 64-28.8 64-64v-16c0-8.8-7.2-16-16-16zM576 48c0-26.4-21.6-48-48-48H112C85.6 0 64 21.6 64 48v336h512V48zm-64 272H128V64h384v256z"></path></svg></a>
-		<div>
-			<h1>itanglo</h1>
-			<p class="tagline">Exploring the craft of web development</p>
-		</div>
-	</header>
-<main><article>
+<itanglo-include src="./src/includes/header.html"></itanglo-include>
+	<main>
+		<article>
 			<header class="postHeader">
 				<h2><a href="./using-deno-to-create-a-static-site-generator.html">Using Deno to create a static site generator</a></h2>
 				<p class="postMeta">Posted by Paolo on Ddd DD Mmm at 00:00</p>
@@ -148,17 +129,6 @@ async function parseIncludeTags(content) {
 			<p>The <code>parseIncludeTags</code> function accepts the content to be parsed as the only parameter and it returns a promise which resolves with the updated content. The main purpose of the function is to find include tags and to replace them with the relevant content. To begin with in the body of the promise function I use a regular expression to match all the include tags in the content and save them to the <code>includeTagMatches</code> variable. If you are wondering why I used the spread syntax this is because the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll"><code>String.prototype.matchAll</code></a> method returns an iterator so the spread operator is used to put the resulting items into an array.</p>
 			<p>There is another interesting statement that I used for the first time when writing this function and that is the <code>for … of</code> statement. I was looking for a reliable way of using the <code>async / await</code> syntax inside a for loop and then I found <a href="https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop">this answer on stack overflow</a>. Inside the loop, first I check if the content of the include has been cached so that I can avoid having to read the file again. If it wasn't then the data is read from the relevant file, decoded and the content is added to the cache. Finally the include tags are replaced with the content and after the loop is finished the promise is resolved with the updated content.</p>
 			<p>If you want to have a look at the code I have been referring to, you can see this in my <a href="https://github.com/pdp2/itanglo">GitHub repository</a>. Thanks for reading.</p>
-		</article><article>
-		<header class="postHeader">
-			<h2><a href="./hello-world.html">Hello world!</a></h2>
-			<p class="postMeta">Posted by Paolo on Thu 25th Feb at 14:55</p>
-		</header>
-		<p>Testing, testing, is this thing on?</p>
-		<p>Seems to be working, or at least, it works for me!</p>
-	</article></main>
-	<footer>
-		<p>&copy; 2021 itanglo software</p>
-		<p>Logo icon <a href="https://fontawesome.com/icons/laptop-code">laptop-code</a> by <a href="https://fontawesome.com/license">Font Awesome</a></p>
-	</footer>
-</body>
-</html>
+		</article>
+	</main>
+<itanglo-include src="./src/includes/footer.html"></itanglo-include>
