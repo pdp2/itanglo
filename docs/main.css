@@ -58,8 +58,23 @@ article + article {
 	margin-top: 60px;
 }
 
+img {
+	max-width: 100%;
+}
+
+img.c64 {
+	width: 50%;
+}
+
+.photoCredit {
+	display: block;
+	font-size: 14px;
+}
+
 .mainHeader {
 	background: #fff;
+	display: flex;
+	justify-content: space-around;
 	padding: 20px;
 }
 
@@ -82,6 +97,31 @@ article + article {
 
 .homeLink:hover {
 	text-decoration: none;
+}
+
+.mainNav {
+	align-self: center;
+}
+
+.mainNav a {
+	border: 1px solid #eef0f1;
+	border-bottom: 5px solid;
+	border-radius: 5px;
+	color: #f6416c;
+	padding: 10px;
+	position: relative;
+	top: 0;
+}
+
+.mainNav a:hover {
+	border-bottom: 3px solid;
+	text-decoration: none;
+	top: 2px;
+}
+
+.mainNav a:active {
+	border-bottom: 1px solid #eef0f1;
+	top: 4px;
 }
 
 main {
@@ -113,6 +153,12 @@ footer {
     color: #fff;
 	margin-top: 60px;
 	padding: 20px;
+}
+
+/* Utility classes */
+
+.alignCenter {
+	text-align: center;
 }
 
 @media only screen and (min-width: 616px) {

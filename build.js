@@ -47,6 +47,16 @@ await Deno.writeTextFile(indexTargetPath, indexOutput);
 
 console.log(`Created ${indexTargetPath}. \n`);
 
+// Build about page
+const aboutFile = await Deno.readFile('./src/about.html');
+const aboutTargetPath = './docs/about.html';
+let aboutContent = decoder.decode(aboutFile);
+let aboutOutput = await parseIncludeTags(aboutContent);
+
+await Deno.writeTextFile(aboutTargetPath, aboutOutput);
+
+console.log(`Created ${aboutTargetPath}. \n`);
+
 /**
  * Parses the content passed as the argument, checks for any include tags and replaces
  * them with the content from the include file.
