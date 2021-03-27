@@ -1,9 +1,17 @@
+:root {
+	--evidenziatore: #f8f3d4;
+	--grigioChiaro: #eef0f1;
+	--grigioScuro: #383838;
+	--rosso: #f6416c;
+	--verde: #00b8a9 
+}
+
 *::selection {
-    background: #f8f3d4;
+    background: var(--evidenziatore);
 }
 
 body {
-	background: #eef0f1;
+	background: var(--grigioChiaro);
 	display: flex;
 	flex-direction: column;
 	font-family: 'Work Sans', sans-serif;
@@ -11,17 +19,12 @@ body {
 	min-height: 100vh;
 }
 
-h1 {
-	font-family: 'IBM Plex Mono', monospace;
-	margin-bottom: 0;
-}
-
 p {
 	line-height: 1.5;
 }
 
 a {
-	color: #f6416c;
+	color: var(--rosso);
 	text-decoration: none;
 }
 
@@ -32,7 +35,7 @@ a:hover {
 pre {
 	overflow: auto;
 	padding: 10px;
-    background: #eef0f1;
+    background: var(--grigioChiaro);
     border-radius: 5px;
 }
 
@@ -40,22 +43,6 @@ code {
 	font-family: 'IBM Plex Mono', monospace;
 	font-size: 14px;
 	line-height: 1.5;
-}
-
-article {
-	background: #fff;
-    padding: 20px;
-    border-radius: 5px;
-}
-
-article :not(pre) code {
-    background: #eef0f1;
-    border-radius: 3px;
-    padding: 1px 3px;
-}
-
-article + article {
-	margin-top: 60px;
 }
 
 img {
@@ -71,11 +58,22 @@ img.c64 {
 	font-size: 14px;
 }
 
+main {
+	flex: 1;
+	max-width: 700px;
+	padding-top: 60px;
+}
+h1 {
+	font-family: 'IBM Plex Mono', monospace;
+	margin-bottom: 0;
+}
+
 .mainHeader {
 	background: #fff;
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-around;
-	padding: 20px;
+	padding-bottom: 20px;
 }
 
 .tagline {
@@ -84,7 +82,7 @@ img.c64 {
 }
 
 .logo {
-	color: #00b8a9;
+	color: var(--verde);
 	margin-right: 10px;
 	width: 50px;
 }
@@ -93,6 +91,7 @@ img.c64 {
 	align-self: center;
 	color: #000;
 	display: inline-flex;
+	padding: 0 20px;
 }
 
 .homeLink:hover {
@@ -104,10 +103,11 @@ img.c64 {
 }
 
 .mainNav a {
-	border: 1px solid #eef0f1;
+	border: 1px solid var(--grigioChiaro);
 	border-bottom: 5px solid;
 	border-radius: 5px;
-	color: #f6416c;
+	color: var(--rosso);
+	display: inline-block;
 	padding: 10px;
 	position: relative;
 	top: 0;
@@ -120,14 +120,24 @@ img.c64 {
 }
 
 .mainNav a:active {
-	border-bottom: 1px solid #eef0f1;
+	border-bottom: 1px solid var(--grigioChiaro);
 	top: 4px;
 }
 
-main {
-	flex: 1;
-	max-width: 700px;
-	padding-top: 60px;
+article {
+	background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+article :not(pre) code {
+    background: var(--grigioChiaro);
+    border-radius: 3px;
+    padding: 1px 3px;
+}
+
+article + article {
+	margin-top: 100px;
 }
 
 .postHeader {
@@ -147,15 +157,12 @@ main {
 	font-style: italic;
 	margin-top: 0;
 }
-
 footer {
-	background: #383838;
+	background: var(--grigioScuro);
     color: #fff;
 	margin-top: 60px;
 	padding: 20px;
 }
-
-/* Utility classes */
 
 .alignCenter {
 	text-align: center;

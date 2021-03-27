@@ -1,0 +1,61 @@
+<itanglo-include src="./src/includes/header.html"></itanglo-include>
+<main>
+	<article data-article-date="2021-03-27T13:48">
+		<header class="postHeader">
+			<h2><a href="./fixing-blog-post-order-bug.html">Fixing the blog post order bug</a></h2>
+			<p class="postMeta">Posted by Paolo on Sat 27th Mar at 13:48</p>
+		</header>
+		<p>This was supposed to be a post about using Deno to build a main CSS file from multiple files, however, I somehow got sidetracked to building a watch task so that I didn't have to run the build task after every change and while I was doing that I realised that the posts in the index page were not in the right order. Oh well, at least I have ideas of what I can write about in the next couple of posts.</p>
+		<p>In the previous post I wrote about my <q>great</q> idea to prefix each new post with a number with the theory that when Deno read them, it would be in the same order as they appear in the file system. That worked for the first 2 posts, but as soon as I added another post it broke. I guess that's an important lesson; test with more examples. I can still keep the prefix for convenience when I'm editing posts so that can easily find the latest one, however I decided to include a data attribute in post files so that I could use it to store the date. The opening article tag for the blog posts now looks like this:</p>
+		<p><code>&lt;article data-article-date="2021-02-25T14:55"&gt;</code></p>
+		<p>Now the build task can use the date value provided to sort the blog posts in a more reliable way. In the build task I had to make a change to the part responsible for building the post files. Previously as I built each post, I would push the content string to an array and then refer to this when building the index file, hoping that it would be enough to reverse sort the contents of that array in order to display the items in reverse chronological order. It wasn't. To make use of the date information, I extracted it using a regular expression and then put this into an object along with the content of the post (in a separate property) so that I could make use of it when building the index file. Here is what that part looks like:</p>
+<pre><code>// Build post files
+const postsFilePaths = await Deno.readDir('./src/posts');
+// Get dirEntry for each file in the posts directory
+for await (const dirEntry of postsFilePaths) {
+  // Read file and decode
+  const fileName = dirEntry.name;
+  const postFile = await Deno.readFile(`./src/posts/${fileName}`);
+  const postContent = decoder.decode(postFile);
+  const excerptContent = postContent.match(/&lt;article\s?\S+&gt;[\s\S]*&lt;\/article&gt;/)[0];
+  const excerptDate = postContent.match(/data-article-date="(\S+)"/)[1];
+
+  excerpts.push({
+    excerptDate,
+    excerptContent
+  });
+
+  const postOutput = await parseIncludeTags(postContent);
+  // Regex below removes number prefix from file
+  const postTargetPath = `./docs/${fileName.replace(/^\d+-/, '')}`;
+
+  await Deno.writeTextFile(postTargetPath, postOutput);
+
+  console.log(`Created ${postTargetPath}. \n`);
+}</code></pre>
+    <p>Now that each excerpt is an object containing the content and the date in separate properties, I can use this to sort the excerpts when it comes to building the index file. Below is the updated code that does this:</p>
+<pre><code>// Sort excerpts so that most recent post appears on top
+excerpts.sort((a, b) => {
+  const aTime = new Date(a.excerptDate).getTime();
+  const bTime = new Date(b.excerptDate).getTime();
+
+  if (aTime < bTime) {
+    return 1; // sort b before a
+  }
+
+  if (aTime > bTime) {
+    return -1; // leave a and b unchanged
+  }
+
+  // a and b are the same
+  return 0;
+});
+// it is necessary to map the excerpts so the array contains only 
+// content strings because the join method is used in a few lines
+excerpts = excerpts.map(excerpt => excerpt.excerptContent);
+
+indexOutput = indexOutput.replace('{{excerpts}}', excerpts.join(''));</code></pre>
+    <p>As you can see I used the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort"><code>Array.prototype.sort()</code></a> function to sort the excerpts in reverse chronological order. The function accepts a compare function as the first argument, and although I've used it before, I had to refer to the documentation again as I did find it a bit confusing. When adding the date information to the <code>data-article-date</code>, I ensured it was in a format that would be easy to create a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date"><code>Date</code></a> instance from i.e. <code>2021-03-27T13:48</code>. I wanted the excerpts with the largest timestamps to be ordered first in the array because they represent the most recent dates. To get the timestamp for each date I used the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getTime"><code>Date.prototype.getTime()</code></a> method. The last thing I did before writing the content to the index file was to map the excerpts array so that it only contained the content strings, meaning I could use the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join"><code>Array.prototype.join()</code></a> method to output all the content from the collection of sorted excerpts. That's all for today, thanks for reading.</p>
+	</article>
+</main>
+<itanglo-include src="./src/includes/footer.html"></itanglo-include>
