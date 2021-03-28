@@ -1,9 +1,9 @@
 :root {
-	--evidenziatore: #f8f3d4;
-	--grigioChiaro: #eef0f1;
-	--grigioScuro: #383838;
-	--rosso: #f6416c;
-	--verde: #00b8a9 
+    --evidenziatore: #f8f3d4;
+    --grigioChiaro: #eef0f1;
+    --grigioScuro: #383838;
+    --rosso: #f6416c;
+    --verde: #00b8a9 
 }
 
 *::selection {
@@ -11,121 +11,118 @@
 }
 
 body {
-	background: var(--grigioChiaro);
-	display: flex;
-	flex-direction: column;
-	font-family: 'Work Sans', sans-serif;
-	margin: 0;
-	min-height: 100vh;
+    background: var(--grigioChiaro);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Work Sans', sans-serif;
+    margin: 0;
+    min-height: 100vh;
 }
 
 p {
-	line-height: 1.5;
+    line-height: 1.5;
 }
 
 a {
-	color: var(--rosso);
-	text-decoration: none;
+    color: var(--rosso);
+    text-decoration: none;
 }
 
 a:hover {
-	text-decoration: underline;
+    text-decoration: underline;
 }
 
 pre {
-	overflow: auto;
-	padding: 10px;
+    overflow: auto;
+    padding: 10px;
     background: var(--grigioChiaro);
     border-radius: 5px;
 }
 
 code {
-	font-family: 'IBM Plex Mono', monospace;
-	font-size: 14px;
-	line-height: 1.5;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 img {
-	max-width: 100%;
+    max-width: 100%;
 }
 
 img.c64 {
-	width: 50%;
+    width: 50%;
 }
 
 .photoCredit {
-	display: block;
-	font-size: 14px;
+    display: block;
+    font-size: 14px;
 }
 
 main {
-	flex: 1;
-	max-width: 700px;
-	padding-top: 60px;
+    flex: 1;
+    max-width: 700px;
+    padding-top: 60px;
 }
 h1 {
-	font-family: 'IBM Plex Mono', monospace;
-	margin-bottom: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 0;
 }
 
 .mainHeader {
-	background: #fff;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-around;
-	padding-bottom: 20px;
+    background: #fff;
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
 }
 
 .tagline {
-	font-style: italic;
-	margin-top: 0;
+    font-style: italic;
+    margin-top: 0;
 }
 
 .logo {
-	color: var(--verde);
-	margin-right: 10px;
-	width: 50px;
+    color: var(--verde);
+    margin-right: 10px;
+    width: 50px;
 }
 
 .homeLink {
-	align-self: center;
-	color: #000;
-	display: inline-flex;
-	padding: 0 20px;
+    align-self: center;
+    color: #000;
+    display: inline-flex;
 }
 
 .homeLink:hover {
-	text-decoration: none;
+    text-decoration: none;
 }
 
 .mainNav {
-	align-self: center;
+    align-self: center;
 }
 
 .mainNav a {
-	border: 1px solid var(--grigioChiaro);
-	border-bottom: 5px solid;
-	border-radius: 5px;
-	color: var(--rosso);
-	display: inline-block;
-	padding: 10px;
-	position: relative;
-	top: 0;
+    border: 1px solid var(--grigioChiaro);
+    border-bottom: 5px solid;
+    border-radius: 5px;
+    color: var(--rosso);
+    padding: 10px;
+    position: relative;
+    top: 0;
 }
 
 .mainNav a:hover {
-	border-bottom: 3px solid;
-	text-decoration: none;
-	top: 2px;
+    border-bottom: 3px solid;
+    text-decoration: none;
+    top: 2px;
 }
 
 .mainNav a:active {
-	border-bottom: 1px solid var(--grigioChiaro);
-	top: 4px;
+    border-bottom: 1px solid var(--grigioChiaro);
+    top: 4px;
 }
 
 article {
-	background: #fff;
+    background: #fff;
     padding: 20px;
     border-radius: 5px;
 }
@@ -137,43 +134,43 @@ article :not(pre) code {
 }
 
 article + article {
-	margin-top: 100px;
+    margin-top: 60px;
 }
 
 .postHeader {
-	display: flex;
+    display: flex;
     align-items: baseline;
     justify-content: space-between;
     flex-wrap: wrap;
 }
 
 .postHeader h2 {
-	margin-bottom: 0;
+    margin-bottom: 0;
     margin-right: 10px;
 }
 
 .postMeta {
-	font-size: 0.8rem;
-	font-style: italic;
-	margin-top: 0;
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-top: 0;
 }
 footer {
-	background: var(--grigioScuro);
+    background: var(--grigioScuro);
     color: #fff;
-	margin-top: 60px;
-	padding: 20px;
+    margin-top: 60px;
+    padding: 20px;
 }
 
 .alignCenter {
-	text-align: center;
+    text-align: center;
 }
 
 @media only screen and (min-width: 616px) {
-	body {
-		margin: 0 auto;
-	}
+    body {
+        margin: 0 auto;
+    }
 
-	main {
-		margin: 0 auto;
-	}
+    main {
+        margin: 0 auto;
+    }
 }

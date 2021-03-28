@@ -1,13 +1,24 @@
 <itanglo-include src="./src/includes/header.html"></itanglo-include>
-	<main>
-		<article data-article-date="2021-03-17T12:45">
-			<header class="postHeader">
-				<h2><a href="./using-deno-to-create-a-static-site-generator.html">Using Deno to create a static site generator</a></h2>
-				<p class="postMeta">Posted by Paolo on Wed 17th Mar at 12:45</p>
-			</header>
-			<p>Rather than reaching for a ready made static site generator, I thought it would be an interesting excercise to try and build one myself. The main feature I was looking for was to be able to include common blocks of HTML such as a header or a footer. As the website grows, it becomes more tedious, not to mention more error prone, to manually update each file with any changes to these common areas.</p>
-			<p>I reckoned <a href="https://deno.land">Deno</a> would be a good candidate for this sort of stuff, so I decided I would use this as an opportunity to learn more about it. To begin with I had a think about the file structure and where the generated files would go. This is what I came up with:</p>
-<pre><code>docs/
+<main>
+    <article data-article-date="2021-03-17T12:45">
+        <header class="postHeader">
+            <h2><a href="./using-deno-to-create-a-static-site-generator.html">Using Deno to create a static site
+                    generator</a>
+            </h2>
+            <p class="postMeta">Posted by Paolo on Wed 17th Mar at 12:45</p>
+        </header>
+        <p>Rather than reaching for a ready made static site generator, I thought it would be an interesting excercise
+            to
+            try and build one myself. The main feature I was looking for was to be able to include common blocks of HTML
+            such
+            as a header or a footer. As the website grows, it becomes more tedious, not to mention more error prone, to
+            manually update each file with any changes to these common areas.</p>
+        <p>I reckoned <a href="https://deno.land">Deno</a> would be a good candidate for this sort of stuff, so I
+            decided I
+            would use this as an opportunity to learn more about it. To begin with I had a think about the file
+            structure and
+            where the generated files would go. This is what I came up with:</p>
+        <pre><code>docs/
   hello-world.html
   index.html
   main.css
@@ -19,24 +30,49 @@ src/
     1-hello-world.html
 build.js
 </code></pre>
-			<p>In the root there is a <strong>docs</strong> directory, which will store all the files that will be served to the client browser. I am using <a href="https://pages.github.com/">GitHub pages</a> to host my site so I could choose to keep the files either in the root or the docs directory, but I prefer to separate the files used to build the site from the public ones. The <strong>src</strong> directory contains all the files that are used to build the final public facing pages including the common re-usable blocks of HTML in the <strong>includes</strong> directory and the content of each post in the <strong>posts</strong> directory. The <strong>index.html</strong> file contains a list of all the posts. That leaves the <strong>build.js</strong> file which will contain the script that will be executed with Deno to build the website files.</p>
-			<p>The Deno script will need to perform the following tasks:</p>
-			<ul>
-				<li>Read the files in the <strong>src/posts</strong> directory to get the content of the blog posts</li>
-				<li>Store an excerpt of each post which will be used when building the index page</li>
-				<li>Parse the content of each file and look for any <q>include</q> tags</li>
-				<li>Read the files referenced in the include tags and replace the tag with the content from the file</li>
-				<li>Finally build the index file using the include tags and the excerpts that were stored earlier</li>
-			</ul>
-			<p>If you are familiar with running JS code with Node.js you will notice some differences with Deno. Below is an excerpt of the build.js file and in the comments you can see an instruction on how to run the program.</p>
-<pre><code>/* 
+        <p>In the root there is a <strong>docs</strong> directory, which will store all the files that will be served to
+            the
+            client browser. I am using <a href="https://pages.github.com/">GitHub pages</a> to host my site so I could
+            choose
+            to keep the files either in the root or the docs directory, but I prefer to separate the files used to build
+            the
+            site from the public ones. The <strong>src</strong> directory contains all the files that are used to build
+            the
+            final public facing pages including the common re-usable blocks of HTML in the <strong>includes</strong>
+            directory
+            and the content of each post in the <strong>posts</strong> directory. The <strong>index.html</strong> file
+            contains a list of all the posts. That leaves the <strong>build.js</strong> file which will contain the
+            script
+            that will be executed with Deno to build the website files.</p>
+        <p>The Deno script will need to perform the following tasks:</p>
+        <ul>
+            <li>Read the files in the <strong>src/posts</strong> directory to get the content of the blog posts</li>
+            <li>Store an excerpt of each post which will be used when building the index page</li>
+            <li>Parse the content of each file and look for any <q>include</q> tags</li>
+            <li>Read the files referenced in the include tags and replace the tag with the content from the file</li>
+            <li>Finally build the index file using the include tags and the excerpts that were stored earlier</li>
+        </ul>
+        <p>If you are familiar with running JS code with Node.js you will notice some differences with Deno. Below is an
+            excerpt of the build.js file and in the comments you can see an instruction on how to run the program.</p>
+        <pre><code>/* 
 * This code should be executed using Deno.
 * The command to do this is: deno run --allow-read --allow-write build.js
 */
 
 console.log('Starting build task. \n');</code></pre>
-			<p>After the run command you can see there are two parameters that are being passed; <code>--allow-read</code> and <code>--allow-write</code>. These are required because in Deno it is necessary to specify if a program should be granted access to perform operations that require certain permissions such as read and write. The idea is that this will improve security as it gives more control and visibility of what type of actions are performed to the user of the program. In it's current state the code will do little else apart from log to the console that the task has started. Below is another excerpt which illustrates the next step in the build process:</p>
-<pre><code>const decoder = new TextDecoder();
+        <p>After the run command you can see there are two parameters that are being passed; <code>--allow-read</code>
+            and
+            <code>--allow-write</code>. These are required because in Deno it is necessary to specify if a program
+            should be
+            granted access to perform operations that require certain permissions such as read and write. The idea is
+            that
+            this will improve security as it gives more control and visibility of what type of actions are performed to
+            the
+            user of the program. In it's current state the code will do little else apart from log to the console that
+            the
+            task has started. Below is another excerpt which illustrates the next step in the build process:
+        </p>
+        <pre><code>const decoder = new TextDecoder();
 // Populated when creating post files
 let excerpts = [];
 // Cache include to avoid reading file again
@@ -57,22 +93,75 @@ for await (const dirEntry of postsFilePaths) {
   const postOutput = await parseIncludeTags(postContent);
   // Regex below removes number prefix from file
   const postTargetPath = `./docs/${fileName.replace(/^\d+-/, '')}`;
-			
+      
   await Deno.writeTextFile(postTargetPath, postOutput);
-	
+  
   console.log(`Created ${postTargetPath}. \n`);
 }</code></pre>
-			<p>The first few lines in the excerpt above are declaring some variables which will be used later on. A bit further down you can see that I make use of the <a href="https://doc.deno.land/builtin/stable#Deno.readDir"><code>Deno.readDir</code></a> to get a list of the resources in the ./src/posts directory. In reality what is returned is an <code>AsyncIterable</code>. Deno supports the <code>await</code> syntax for running asynchronous code and this is leveraged a few times in the example above. We can iterate through the different entries by using the <code>for await</code> statement. The value of the variable for each iteration uses the <a href="https://doc.deno.land/builtin/stable#Deno.DirEntry"><code>DirEntry</code></a> interface.</p>
-			<p>The <strong>name</strong> property is used to create a string representing the path of the file and this is passed to the <a href="https://doc.deno.land/builtin/stable#Deno.readFile"><code>Deno.readFile</code></a> method, which returns a promise that resolves with a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array">Uint8Array</a>. It's not really a data format I'm familiar with, but earlier on I created an instance of the <a href="https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder">TextDecoder</a> and using the <code>decode</code> method provided, we can turn this value into a string. Once the content is accessible in string form, I use a regular expression to grab the HTML article tag and all the content inside it and then I push this to the excerpts array so that I can use it later on when I get to building the index page.</p>
-			<p>The next step is to generate the final output of the post. To do this the content is passed to the asynchronous <code>parseIncludeTags</code> function, which checks for the presence of tags that look like this:</p>
-<pre><code>&lt;itanglo-include src="./src/includes/header.html"&gt;&lt;/itanglo-include&gt;</code></pre>
-			<p>The value of the source attribute is used to read the file for this component and then the tag is replaced with the content in that file. I will cover this function in a bit more detail later in this post. Next, I remove the number prefix from the file name. The prefix is used so that I can easily sort the order the posts appear in when I put together the index file (again I will cover this when I talk about building the index file). I could leave it, but I think the URL of the post would look better without a number that wouldn't really mean anything to the reader. Finally I use the <a href="https://doc.deno.land/builtin/stable#Deno.writeTextFile"><code>Deno.writeTextFile</code></a> method to create the new post file. This is an asynchronous method, hence the <code>await</code> keyword before the invocation and it takes the file path as the first parameter and the file data as the second parameter.</p>
-			<p>Building the index file is quite similar to the post files, except for there is only one source file. The index file will need to include a list of all the posts. For now this will include each blog post in full, but in the future I will look to make these actual excerpts. Below is the markup for the index source file:</p>
-<pre><code>&lt;itanglo-include src="./src/includes/header.html"&gt;&lt;/itanglo-include&gt;
+        <p>The first few lines in the excerpt above are declaring some variables which will be used later on. A bit
+            further
+            down you can see that I make use of the <a
+                href="https://doc.deno.land/builtin/stable#Deno.readDir"><code>Deno.readDir</code></a> to get a list of
+            the
+            resources in the ./src/posts directory. In reality what is returned is an <code>AsyncIterable</code>. Deno
+            supports the <code>await</code> syntax for running asynchronous code and this is leveraged a few times in
+            the
+            example above. We can iterate through the different entries by using the <code>for await</code> statement.
+            The
+            value of the variable for each iteration uses the <a
+                href="https://doc.deno.land/builtin/stable#Deno.DirEntry"><code>DirEntry</code></a> interface.</p>
+        <p>The <strong>name</strong> property is used to create a string representing the path of the file and this is
+            passed to the <a href="https://doc.deno.land/builtin/stable#Deno.readFile"><code>Deno.readFile</code></a>
+            method,
+            which returns a promise that resolves with a <a
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array">Uint8Array</a>.
+            It's not really a data format I'm familiar with, but earlier on I created an instance of the <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder">TextDecoder</a> and using the
+            <code>decode</code> method provided, we can turn this value into a string. Once the content is accessible in
+            string form, I use a regular expression to grab the HTML article tag and all the content inside it and then
+            I push
+            this to the excerpts array so that I can use it later on when I get to building the index page.
+        </p>
+        <p>The next step is to generate the final output of the post. To do this the content is passed to the
+            asynchronous
+            <code>parseIncludeTags</code> function, which checks for the presence of tags that look like this:
+        </p>
+        <pre><code>&lt;itanglo-include src="./src/includes/header.html"&gt;&lt;/itanglo-include&gt;</code></pre>
+        <p>The value of the source attribute is used to read the file for this component and then the tag is replaced
+            with
+            the content in that file. I will cover this function in a bit more detail later in this post. Next, I remove
+            the
+            number prefix from the file name. The prefix is used so that I can easily sort the order the posts appear in
+            when
+            I put together the index file (again I will cover this when I talk about building the index file). I could
+            leave
+            it, but I think the URL of the post would look better without a number that wouldn't really mean anything to
+            the
+            reader. Finally I use the <a
+                href="https://doc.deno.land/builtin/stable#Deno.writeTextFile"><code>Deno.writeTextFile</code></a>
+            method to
+            create the new post file. This is an asynchronous method, hence the <code>await</code> keyword before the
+            invocation and it takes the file path as the first parameter and the file data as the second parameter.</p>
+        <p>Building the index file is quite similar to the post files, except for there is only one source file. The
+            index
+            file will need to include a list of all the posts. For now this will include each blog post in full, but in
+            the
+            future I will look to make these actual excerpts. Below is the markup for the index source file:</p>
+        <pre><code>&lt;itanglo-include src="./src/includes/header.html"&gt;&lt;/itanglo-include&gt;
 &lt;main&gt;{{excerpts}}&lt;/main&gt;
 &lt;itanglo-include src="./src/includes/footer.html"&gt;&lt;/itanglo-include&gt;</code></pre>
-			<p>In the index file there are include tags to bring in the common header and footer. In the main tag the <code>{{excerpts}}</code> syntax will be used by the build script to insert the list of blog posts. As I mentioned before, each post source file has a number prefix. The number represents the order the posts were written in, with 1 being the oldest post and the highest number being the most recent post. With this system when we read the files in the src/posts directory they will be in chronological order and consequently so will the excerpts we captured earlier. Below is the code that builds the public index file:</p>
-<pre><code>// Build index page
+        <p>In the index file there are include tags to bring in the common header and footer. In the main tag the
+            <code>{{excerpts}}</code> syntax will be used by the build script to insert the list of blog posts. As I
+            mentioned
+            before, each post source file has a number prefix. The number represents the order the posts were written
+            in, with
+            1 being the oldest post and the highest number being the most recent post. With this system when we read the
+            files
+            in the src/posts directory they will be in chronological order and consequently so will the excerpts we
+            captured
+            earlier. Below is the code that builds the public index file:
+        </p>
+        <pre><code>// Build index page
 const indexFile = await Deno.readFile('./src/index.html');
 const indexTargetPath = './docs/index.html';
 let indexContent = decoder.decode(indexFile);
@@ -86,9 +175,18 @@ indexOutput = indexOutput.replace('{{excerpts}}', excerpts.join(''));
 await Deno.writeTextFile(indexTargetPath, indexOutput);
 
 console.log(`Created ${indexTargetPath}. \n`);</code></pre>
-			<p>The first part is very similar to when we were building the post files, however after we have got the index output from parsing the include tags, I reverse the order of the excerpts so that the posts are listed in reverse chronological order, i.e. most recent on top, and then the <code>{{excerpts}}</code> syntax is replaced with the content of all the excerpts. Finally as with the post files the file is written with the <code>Deno.writeTextFile</code> method.</p>
-			<p>All that remains now is to discuss how the <code>parseIncludeTags</code> function works. Below is the definition of the function:</p>
-<pre><code>/**
+        <p>The first part is very similar to when we were building the post files, however after we have got the index
+            output from parsing the include tags, I reverse the order of the excerpts so that the posts are listed in
+            reverse
+            chronological order, i.e. most recent on top, and then the <code>{{excerpts}}</code> syntax is replaced with
+            the
+            content of all the excerpts. Finally as with the post files the file is written with the
+            <code>Deno.writeTextFile</code> method.
+        </p>
+        <p>All that remains now is to discuss how the <code>parseIncludeTags</code> function works. Below is the
+            definition
+            of the function:</p>
+        <pre><code>/**
 * Parses the content passed as the argument, checks for any include tags and replaces
 * them with the content from the include file.
 * 
@@ -100,7 +198,7 @@ async function parseIncludeTags(content) {
   return new Promise(async (resolve) => {
   // Spread syntax converts to array because matchAll returns a RegExp String Iterator
     const includeTagMatches = [...content.matchAll(/&lt;itanglo-include src="(.+)"&gt;&lt;\itanglo-include&gt;/g)];
-		
+    
     for (const match of includeTagMatches) {
       const [includeTag, src] = match;
       const cachedInclude = cachedIncludes.find(include => include.src === src);
@@ -108,14 +206,14 @@ async function parseIncludeTags(content) {
 
       if (cachedInclude) {
         console.log(`Getting include: ${cachedInclude.src} from include cache. \n`);
-			
+      
         includeContent = cachedInclude.includeContent;
       }
       else {
         console.log(`Reading include: ${src} from file. \n`);
-				
+        
         const includeFile = await Deno.readFile(src);
-				
+        
         includeContent = decoder.decode(includeFile);
         cachedIncludes.push({	src, includeContent });
       }
@@ -126,9 +224,32 @@ async function parseIncludeTags(content) {
     resolve(content);
   });
 }</code></pre>
-			<p>The <code>parseIncludeTags</code> function accepts the content to be parsed as the only parameter and it returns a promise which resolves with the updated content. The main purpose of the function is to find include tags and to replace them with the relevant content. To begin with in the body of the promise function I use a regular expression to match all the include tags in the content and save them to the <code>includeTagMatches</code> variable. If you are wondering why I used the spread syntax this is because the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll"><code>String.prototype.matchAll</code></a> method returns an iterator so the spread operator is used to put the resulting items into an array.</p>
-			<p>There is another interesting statement that I used for the first time when writing this function and that is the <code>for … of</code> statement. I was looking for a reliable way of using the <code>async / await</code> syntax inside a for loop and then I found <a href="https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop">this answer on stack overflow</a>. Inside the loop, first I check if the content of the include has been cached so that I can avoid having to read the file again. If it wasn't then the data is read from the relevant file, decoded and the content is added to the cache. Finally the include tags are replaced with the content and after the loop is finished the promise is resolved with the updated content.</p>
-			<p>If you want to have a look at the code I have been referring to, you can see this in my <a href="https://github.com/pdp2/itanglo">GitHub repository</a>. Thanks for reading.</p>
-		</article>
-	</main>
+        <p>The <code>parseIncludeTags</code> function accepts the content to be parsed as the only parameter and it
+            returns
+            a promise which resolves with the updated content. The main purpose of the function is to find include tags
+            and to
+            replace them with the relevant content. To begin with in the body of the promise function I use a regular
+            expression to match all the include tags in the content and save them to the <code>includeTagMatches</code>
+            variable. If you are wondering why I used the spread syntax this is because the <a
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll"><code>String.prototype.matchAll</code></a>
+            method returns an iterator so the spread operator is used to put the resulting items into an array.</p>
+        <p>There is another interesting statement that I used for the first time when writing this function and that is
+            the
+            <code>for … of</code> statement. I was looking for a reliable way of using the <code>async / await</code>
+            syntax
+            inside a for loop and then I found <a
+                href="https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop">this answer on
+                stack
+                overflow</a>. Inside the loop, first I check if the content of the include has been cached so that I can
+            avoid
+            having to read the file again. If it wasn't then the data is read from the relevant file, decoded and the
+            content
+            is added to the cache. Finally the include tags are replaced with the content and after the loop is finished
+            the
+            promise is resolved with the updated content.
+        </p>
+        <p>If you want to have a look at the code I have been referring to, you can see this in my <a
+                href="https://github.com/pdp2/itanglo">GitHub repository</a>. Thanks for reading.</p>
+    </article>
+</main>
 <itanglo-include src="./src/includes/footer.html"></itanglo-include>

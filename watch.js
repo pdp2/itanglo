@@ -13,13 +13,13 @@ let waiting;
 console.log(`Watching "${dirToWatch}" directory... \n`);
 
 for await (const event of watcher) {
-   // throttle events as multiple are fired when a file is changed
-   if (!waiting) {
-      waiting = true;
-      setTimeout(() => {
-         console.log(`${event.kind} ${event.paths.join(', ')} \n`);
-         build();
-         waiting = false;
-      }, 1000);
-   }
+    // throttle events as multiple are fired when a file is changed
+    if (!waiting) {
+        waiting = true;
+        setTimeout(() => {
+            console.log(`${event.kind} ${event.paths.join(', ')} \n`);
+            build();
+            waiting = false;
+        }, 1000);
+    }
 }
