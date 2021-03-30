@@ -1,0 +1,57 @@
+h1 {
+	font-family: 'IBM Plex Mono', monospace;
+	margin-bottom: 0;
+}
+
+.mainHeader {
+	background: #fff;
+	display: flex;
+	justify-content: space-around;
+	padding: 20px;
+}
+
+.tagline {
+	font-style: italic;
+	margin-top: 0;
+}
+
+.logo {
+	color: var(--verde);
+	margin-right: 10px;
+	width: 50px;
+}
+
+.homeLink {
+	align-self: center;
+	color: #000;
+	display: inline-flex;
+}
+
+.homeLink:hover {
+	text-decoration: none;
+}
+
+.mainNav {
+	align-self: center;
+}
+
+.mainNav a {
+	border: 1px solid var(--grigioChiaro);
+	border-bottom: 5px solid;
+	border-radius: 5px;
+	color: var(--rosso);
+	padding: 10px;
+	position: relative;
+	top: 0;
+}
+
+.mainNav a:hover {
+	border-bottom: 3px solid;
+	text-decoration: none;
+	top: 2px;
+}
+
+.mainNav a:active {
+	border-bottom: 1px solid var(--grigioChiaro);
+	top: 4px;
+}

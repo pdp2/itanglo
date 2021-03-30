@@ -1,0 +1,33 @@
+article {
+	background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+article :not(pre) code {
+    background: var(--grigioChiaro);
+    border-radius: 3px;
+    padding: 1px 3px;
+}
+
+article + article {
+	margin-top: 60px;
+}
+
+.postHeader {
+	display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.postHeader h2 {
+	margin-bottom: 0;
+    margin-right: 10px;
+}
+
+.postMeta {
+	font-size: 0.8rem;
+	font-style: italic;
+	margin-top: 0;
+}
