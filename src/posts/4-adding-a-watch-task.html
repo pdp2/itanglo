@@ -1,0 +1,39 @@
+<itanglo-include src="./src/includes/header.html"></itanglo-include>
+<main>
+    <article data-article-date="2021-03-31T16:54">
+        <header class="postHeader">
+            <h2><a href="./adding-a-watch-task.html">Adding a watch task</a></h2>
+            <p class="postMeta">Posted by Paolo on Tue 31st Mar at 16:54</p>
+        </header>
+        <p>I thought it would be handy to have a watch task running while I'm making changes so that the build task is triggered when I change any of the files in the src folder. As part of the runtime API Deno includes the <a href="https://doc.deno.land/builtin/stable#Deno.watchFs"><code>Deno.watchFs()</code></a> method that allows you to specify a folder or array of folders to watch. The method returns an <code>AsyncIterableIterator</code> that we can use with the <code>for await</code> syntax to handle any changes to the files in the specified folder. The code for the watch task is below:</p>
+<pre><code>/* 
+* This code should be executed using Deno.
+* The command to do this is deno run --allow-read --allow-write watch.js
+*/
+    
+import build from './build.js';
+
+const dirToWatch = './src';
+const watcher = Deno.watchFs(dirToWatch);
+
+let waiting;
+
+console.log(`Watching "${dirToWatch}" directory... \n`);
+
+for await (const event of watcher) {
+    // throttle events as multiple are fired when a file is changed
+    if (!waiting) {
+        waiting = true;
+        setTimeout(() => {
+            console.log(`${event.kind} ${event.paths.join(', ')} \n`);
+            build();
+            waiting = false;
+        }, 1000);
+    }
+}</code></pre>
+        <p>As with the build task, I have put a brief comment at the top to explain how to run the code with Deno. Following that, the first thing I do is import the build function which will be called everytime a change is detected. After setting up the watcher we can use <code>for await</code>  to iterate over the asynchronous change events. The <code>event</code> variable uses the <code><a href="https://doc.deno.land/builtin/stable#Deno.FsEvent">FSEvent</a></code> interface, which contains a paths property that indicates the file/s that triggered the event. For some reason the watcher fires multiple events everytime there is a change, but I didn't want to trigger the build task for each one. To prevent this I added a throttle using the <code><a href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout">window.setTimeout()</a></code> method so the build task can only be triggered once per second.</p>
+        <p>When I want to write a new post or make any changes to the files in the src folder, all I need to do is run the watch task before I start:</p>
+        <p><code>deno run --allow-read --allow-write watch.js</code></p>
+    </article>
+</main>
+<itanglo-include src="./src/includes/footer.html"></itanglo-include>
