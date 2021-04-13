@@ -18,7 +18,7 @@ for await (const event of watcher) {
         waiting = true;
         setTimeout(() => {
             console.log(`${event.kind} ${event.paths.join(', ')} \n`);
-            build();
+            build(event.paths);
             waiting = false;
         }, 1000);
     }

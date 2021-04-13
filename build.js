@@ -9,88 +9,95 @@ let cachedIncludes = [];
 let cachedCssFiles = [];
 
 // TO DO: Pass argument to indicate env i.e. dev/prod
-export default async function build() {
-    // Populated when creating post files
-    let excerpts = [];
-
+export default async function build(filesChanged) {
     console.log('Starting build task. \n');
 
-    // Build post files
-    const postsFilePaths = await Deno.readDir('./src/posts');
-    // Get dirEntry for each file in the posts directory
-    for await (const dirEntry of postsFilePaths) {
-        // Read file and decode
-        const fileName = dirEntry.name;
-        const postFile = await Deno.readFile(`./src/posts/${fileName}`);
-        const postContent = decoder.decode(postFile);
-        const excerptContent = postContent.match(/<article\s?\S+>[\s\S]*<\/article>/)[0];
-        const excerptDate = postContent.match(/data-article-date="(\S+)"/)[1];
+    let htmlChanged = filesChanged.some(file => file.indexOf('.html') > -1);
+    let cssChanged = filesChanged.some(file => file.indexOf('.css') > -1);
 
-        excerpts.push({
-            excerptDate,
-            excerptContent
-        });
+    if (htmlChanged) {
+        // Populated when creating post files 
+        let excerpts = [];
 
-        const postOutput = await parseIncludeTags(postContent);
-        // Regex below removes number prefix from file
-        const postTargetPath = `./docs/${fileName.replace(/^\d+-/, '')}`;
-                
-        await Deno.writeTextFile(postTargetPath, postOutput);
+        // Build post files
+        const postsFilePaths = await Deno.readDir('./src/posts');
+        // Get dirEntry for each file in the posts directory
+        for await (const dirEntry of postsFilePaths) {
+            // Read file and decode
+            const fileName = dirEntry.name;
+            const postFile = await Deno.readFile(`./src/posts/${fileName}`);
+            const postContent = decoder.decode(postFile);
+            const excerptContent = postContent.match(/<article\s?\S+>[\s\S]*<\/article>/)[0];
+            const excerptDate = postContent.match(/data-article-date="(\S+)"/)[1];
+
+            excerpts.push({
+                excerptDate,
+                excerptContent
+            });
+
+            const postOutput = await parseIncludeTags(postContent);
+            // Regex below removes number prefix from file
+            const postTargetPath = `./docs/${fileName.replace(/^\d+-/, '')}`;
+                    
+            await Deno.writeTextFile(postTargetPath, postOutput);
         
-        console.log(`Created ${postTargetPath}. \n`);
+            console.log(`Created ${postTargetPath}. \n`);
+        }
+
+        // Build index page
+        const indexFile = await Deno.readFile('./src/index.html');
+        const indexTargetPath = './docs/index.html';
+        const indexContent = decoder.decode(indexFile);
+        let indexOutput = await parseIncludeTags(indexContent);
+
+        // Sort excerpts so that most recent post appears on top
+        excerpts.sort((a, b) => {
+            const aTime = new Date(a.excerptDate).getTime();
+            const bTime = new Date(b.excerptDate).getTime();
+
+            if (aTime < bTime) {
+                return 1; // sort b before a
+            }
+
+            if (aTime > bTime) {
+                return -1; // leave a and b unchanged
+            }
+
+            // a and b are the same
+            return 0;
+        });
+        // it is necessary to map the excerpts so the array contains only 
+        // content strings because the join method is used in a few lines
+        excerpts = excerpts.map(excerpt => excerpt.excerptContent);
+
+        indexOutput = indexOutput.replace('{{excerpts}}', excerpts.join(''));
+
+        await Deno.writeTextFile(indexTargetPath, indexOutput);
+
+        console.log(`Created ${indexTargetPath}. \n`);
+
+        // Build about page
+        const aboutFile = await Deno.readFile('./src/about.html');
+        const aboutTargetPath = './docs/about.html';
+        const aboutContent = decoder.decode(aboutFile);
+        let aboutOutput = await parseIncludeTags(aboutContent);
+
+        await Deno.writeTextFile(aboutTargetPath, aboutOutput);
+
+        console.log(`Created ${aboutTargetPath}. \n`);
     }
 
-    // Build index page
-    const indexFile = await Deno.readFile('./src/index.html');
-    const indexTargetPath = './docs/index.html';
-    const indexContent = decoder.decode(indexFile);
-    let indexOutput = await parseIncludeTags(indexContent);
+    if (cssChanged) {
+        // Build CSS Styles
+        const mainCssTargetPath = './docs/main.css';
+        const mainCssFile = await Deno.readFile('./src/styles/main.css');
+        const mainCssContent = decoder.decode(mainCssFile);
+        const mainCssOutput = await parseCssImports(mainCssContent, filesChanged);
 
-    // Sort excerpts so that most recent post appears on top
-    excerpts.sort((a, b) => {
-        const aTime = new Date(a.excerptDate).getTime();
-        const bTime = new Date(b.excerptDate).getTime();
+        await Deno.writeTextFile(mainCssTargetPath, mainCssOutput);
 
-        if (aTime < bTime) {
-            return 1; // sort b before a
-        }
-
-        if (aTime > bTime) {
-            return -1; // leave a and b unchanged
-        }
-
-        // a and b are the same
-        return 0;
-    });
-    // it is necessary to map the excerpts so the array contains only 
-    // content strings because the join method is used in a few lines
-    excerpts = excerpts.map(excerpt => excerpt.excerptContent);
-
-    indexOutput = indexOutput.replace('{{excerpts}}', excerpts.join(''));
-
-    await Deno.writeTextFile(indexTargetPath, indexOutput);
-
-    console.log(`Created ${indexTargetPath}. \n`);
-
-    // Build about page
-    const aboutFile = await Deno.readFile('./src/about.html');
-    const aboutTargetPath = './docs/about.html';
-    const aboutContent = decoder.decode(aboutFile);
-    let aboutOutput = await parseIncludeTags(aboutContent);
-
-    await Deno.writeTextFile(aboutTargetPath, aboutOutput);
-
-    console.log(`Created ${aboutTargetPath}. \n`);
-
-    // Build CSS Styles
-    const mainCssTargetPath = './docs/main.css';
-    const mainCssFile = await Deno.readFile('./src/styles/main.css');
-    const mainCssContent = decoder.decode(mainCssFile);
-    const mainCssOutput = await parseCssImports(mainCssContent);
-
-    await Deno.writeTextFile(mainCssTargetPath, mainCssOutput);
-
-    console.log(`Created ${mainCssTargetPath}. \n`);
+        console.log(`Created ${mainCssTargetPath}. \n`);
+    }
 }
 
 /**
@@ -138,9 +145,10 @@ async function parseIncludeTags(content) {
  * 
  * @method parseCssImports
  * @param {String} content
+ * @param {Array} filesChanged the file/s that changed and triggered the build task
  * @returns {Promise} resolves with the updated content
  */
-async function parseCssImports(content) {
+async function parseCssImports(content, filesChanged) {
     return new Promise(async (resolve) => {
         // Spread syntax converts to array because matchAll returns a RegExp String Iterator
         const importMatches = [...content.matchAll(/@import\s+'(\S+)';/g)];
@@ -150,8 +158,12 @@ async function parseCssImports(content) {
             const src = `./src/styles/${path}`;
             const cachedCssFile = cachedCssFiles.find(cssFile => cssFile.src === src);
             let cssFileContent;
+            let useCachedFile = !!cachedCssFile;
 
-            if (cachedCssFile) {
+            // Only use cached file if that file has not changed
+            useCachedFile = filesChanged.every(file => file.indexOf(path.replace('./', '')) < 0);
+
+            if (cachedCssFile && useCachedFile) {
                 console.log(`Getting import: ${cachedCssFile.src} from cache. \n`);
                 
                 cssFileContent = cachedCssFile.cssFileContent;
