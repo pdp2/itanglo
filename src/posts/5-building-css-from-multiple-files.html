@@ -1,0 +1,65 @@
+<itanglo-include src="./src/includes/header.html"></itanglo-include>
+    <main>
+        <article data-article-date="2021-04-27T14:59">
+            <header class="postHeader">
+                <h2><a href="./building-css-from-multiple-files.html">Building CSS from multiple files</a></h2>
+                <p class="postMeta">Posted by Paolo on Tue 27 Apr at 14:59</p>
+            </header>
+            <p>A useful feature that tools like <a href="https://sass-lang.com/">Sass</a> and <a href="https://lesscss.org/">Less</a> provide is the ability to include CSS from multiple files and to compile it into a single file. It is possible to use <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@import">CSS imports</a> and surprisingly they do have good browser support, however, this would mean that you have to make a separate HTTP request for each import. For the sake of performance, it is usually considered best practice to reduce the number of requests as much as possible and tools such as the aforementioned CSS pre-processors allow us to benefit from the import syntax, whilst conveniently bundling the CSS into a single file. CSS pre-processors have many different features and seen as I am only interested in bundling for the time being, I thought I would have a stab and writing this functionality myself as part of the existing Deno build script.</p>
+            <p>It makes sense that the CSS files should be bundled every time there is a change. The watch task is already setup to listen for changes in files in the src directory so I can hook on to this to run my CSS bundling code. I do need to make some changes though because I don't necessarily want all the build tasks to be performed when any of the files are changed. For example if an HTML file is changed I don't need to run the CSS bundler and if a CSS file is changed I don't need to run the code that creates the final HTML output. In the watch task there is already a <code>for await</code> loop that calls the build function everytime there is a change. The watcher is passed an event argument which also contains a property called <code>paths</code>. This will come in handy as I can pass it to the build function and in there I can check to see the type of file changed and run the appropriate code. The build function signature now looks like this:</p>
+            <p><code>export default async function build(filesChanged)</code></p>
+            <p>The <code>filesChanged</code> argument is an array of the paths of the files that have changed. In the opening lines of the function I use this array to determine what type of file triggered the change as shown below:</p>
+<pre><code>let htmlChanged = filesChanged.some(file => file.indexOf('.html') > -1);
+let cssChanged = filesChanged.some(file => file.indexOf('.css') > -1);</code></pre>
+            <p>A bit further down there is a conditional statement that uses the latter of those variables to run a piece of code only if a CSS file has changed.</p>
+<pre><code>if (cssChanged) {
+    // Build CSS Styles
+    const mainCssTargetPath = './docs/main.css';
+    const mainCssFile = await Deno.readFile('./src/styles/main.css');
+    const mainCssContent = decoder.decode(mainCssFile);
+    const mainCssOutput = await parseCssImports(mainCssContent, filesChanged);
+
+    await Deno.writeTextFile(mainCssTargetPath, mainCssOutput);
+
+    console.log(`Created ${mainCssTargetPath}. \n`);
+}</code></pre>
+            <p>Most of the code is familiar and has been used in some other part of the build function. The addition is the <code>parseCssImports</code> function. This is similar to the <code>parseIncludeTags</code> in that it accepts the content of the file as a string and then parses it and returns the updated content string. In this case though rather than looking for include tags it looks for import statements and retrieves the relevant code for each of those imports and includes it in the content string. The difference being that the <code>parseCssImports</code> function is also passed another argument in the form of <code>filesChanged</code> which is the array of paths of the files that have changed. After looking at the code below you will see this is used to determine whether or not an import can be fetched from the cache or not. In order for the main CSS file to be updated successfully, I only want the imports for the files that have not changed to be fetched from the cache, otherwise the changes will never show. Here is the code for that:</p>
+<code><pre>async function parseCssImports(content, filesChanged) {
+    return new Promise(async (resolve) => {
+        // Spread syntax converts to array because matchAll returns a RegExp String Iterator
+        const importMatches = [...content.matchAll(/@import\s+'(\S+)';/g)];
+        
+        for (const match of importMatches) {
+            const [importStatement, path] = match;
+            const src = `./src/styles/${path}`;
+            const cachedCssFile = cachedCssFiles.find(cssFile => cssFile.src === src);
+            let cssFileContent;
+            let useCachedFile = !!cachedCssFile;
+
+            // Only use cached file if that file has not changed
+            useCachedFile = filesChanged.every(file => file.indexOf(path.replace('./', '')) < 0);
+
+            if (cachedCssFile && useCachedFile) {
+                console.log(`Getting import: ${cachedCssFile.src} from cache. \n`);
+                
+                cssFileContent = cachedCssFile.cssFileContent;
+            }
+            else {
+                console.log(`Reading import: ${src} from file. \n`);
+                
+                const cssFile = await Deno.readFile(src);
+                
+                cssFileContent = decoder.decode(cssFile);
+                cachedCssFiles.push({ src, cssFileContent });
+            }
+
+            content = content.replace(importStatement, cssFileContent);
+        }
+
+        resolve(content);
+    });
+}</pre></code>
+            <p>Similar to the <code>parseIncludeTags</code> function, a regular expression is used to match all the import statements. Next, I loop over the matches and as I mentioned earlier, if the CSS exists in the cache and it wasn't the file that was changed, I take the cached version, otherwise the content of the file is read and then pushed to the cache for next time.</p>
+        </article>
+    </main>
+<itanglo-include src="./src/includes/footer.html"></itanglo-include>
