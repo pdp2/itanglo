@@ -61,7 +61,7 @@ img.c64 {
 main {
     flex: 1;
     max-width: 700px;
-    padding-top: 60px;
+    padding: 40px 10px;
 }
 h1 {
     font-family: 'IBM Plex Mono', monospace;
